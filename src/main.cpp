@@ -114,3 +114,8 @@ int main(int argc, char** argv) {
 	std::cout << std::endl;
 	return (0);
 }
+
+
+//Resources
+//https://www.geeksforgeeks.org/program-to-create-custom-vector-class-in-c/
+//https://www.geeksforgeeks.org/how-to-implement-our-own-vector-class-in-c/?ref=gcse
