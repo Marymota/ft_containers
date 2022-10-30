@@ -116,12 +116,41 @@
 // 	return (0);
 // }
 
+void stack() {
+	ft::stack<int> st;
+
+	// push three elements into the stack
+	st.push(1);
+	st.push(2);
+	st.push(3);
+
+	//pop and printtwo elements from the stack
+	std::cout << st.top() << ' ';
+	st.pop();
+	std::cout << st.top() << ' ';
+	st.pop();
+
+	//modify top element
+	st.top() = 77;
+
+	//push two new elements
+	st.push(4);
+	st.push(5);
+
+	//pop one element without processing it
+	st.pop() ;
+
+
+	// pop and print remaining elements
+	while (!st.empty()) {
+		std::cout << st.top() << ' ';
+		st.pop();
+	}
+	std::cout << std::endl;
+}
+
 int main() {
-
-	ft::stack<int> first;
-
-	std::cout << "size: " << first.size()  << std::endl;
-	std::cout << "empty: " << first.empty()  << std::endl;
-
+	stack(); 	// Print "3 2 4 77"
 	return 0;
 }
+
