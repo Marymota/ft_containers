@@ -1,7 +1,7 @@
 #ifndef _STACK_HPP_
 #define _STACK_HPP_
 #include <vector>	//change to ft::vector when finished
-	
+#include "../inc/vector.hpp"	//change to ft::vector when finished
 	/**
 	 * @brief Stacks are designed	to operate in a LIFO context (last-in first-out), 
 	 * where elements are	inserted and extracted only from one end of the container.
@@ -18,7 +18,7 @@ namespace ft {
 		*	Container: Underlying container object type, where the elements are stored.
 		*	Aliases as member type stack::container_type
 	*/
-	template< class T, class Container = std::vector<T> >
+	template< class T, class Container = std::vector<T> > //change to ft::vector when finished
 	class stack {
 		public:
 //											Member type									Definition

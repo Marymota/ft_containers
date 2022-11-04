@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <deque>
 //#if 1 //CREATE A REAL STL EXAMPLE
 //	#include <map>
 //	#include <stack>
@@ -116,6 +115,13 @@
 // 	return (0);
 // }
 
+void vector() {
+	ft::vector<int> first;
+	//ft::vector<int> second (4,100);
+	//ft::vector<int> third (second.begin(), second.end());
+	//ft::vector<int> fourth (second);
+}
+
 void stack_operators() {
 	ft::stack<int> st;
 
@@ -200,8 +206,9 @@ void stack() {
 }
 
 int main() {
-	stack(); 	// Print "3 2 4 77"
-	stack_operators();
+//	stack(); 	// Print "3 2 4 77"
+//	stack_operators();
+	vector();
 	return 0;
 }
 
