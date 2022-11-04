@@ -116,6 +116,57 @@
 // 	return (0);
 // }
 
+void stack_operators() {
+	ft::stack<int> st;
+
+	// push three elements into the stack
+	st.push(1);
+	st.push(2);
+	st.push(3);
+	
+	// copy
+	ft::stack<int> st1(st);
+
+	if (st == st1)
+		std::cout << "Both stacks are equal" << std::endl;
+
+	if (st <= st1)
+		std::cout << "stack is less or equal than stack1" << std::endl;
+	else if (st >= st1)
+		std::cout << "stack is more or equal than stack1" << std::endl;
+
+	st1.pop();
+
+	if (st <= st1)
+		std::cout << "stack is less or equal than stack" << std::endl;
+	else if (st >= st1)
+		std::cout << "stack is more or equal than stack1" << std::endl;
+	
+	st1.top() = 5;
+
+	if (st <= st1)
+		std::cout << "stack is less or equal than stack1" << std::endl;
+	else if (st >= st1)
+		std::cout << "stack is more or equal than stack1" << std::endl;
+
+	if (st != st1)
+		std::cout << "Both stacks are not equal" << std::endl;
+	
+	std::cout << "Stack: ";
+	while (!st.empty()) {
+		std::cout << st.top() << ' ';
+		st.pop();
+	}
+	std::cout << std::endl;
+
+	std::cout << "Stack1: ";
+	while (!st1.empty()) {
+		std::cout << st1.top() << ' ';
+		st1.pop();
+	}
+	std::cout << std::endl;
+}
+
 void stack() {
 	ft::stack<int> st;
 
@@ -140,7 +191,6 @@ void stack() {
 	//pop one element without processing it
 	st.pop() ;
 
-
 	// pop and print remaining elements
 	while (!st.empty()) {
 		std::cout << st.top() << ' ';
@@ -151,6 +201,7 @@ void stack() {
 
 int main() {
 	stack(); 	// Print "3 2 4 77"
+	stack_operators();
 	return 0;
 }
 
