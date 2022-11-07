@@ -32,7 +32,6 @@ namespace ft {
 			allocator_type	_allocator;	//	Allocator object
 			iterator	data;
 			iterator	limit;
-			size_type size;
 			//size_type				size;			//	Initial container size(number of elements)
 
 		public:
@@ -46,9 +45,10 @@ namespace ft {
 			vector (const allocator_type& alloc = allocator_type()) :
 				_allocator(alloc),
 				data(0),
-				limit(0),
-				size(0) 
-			{}
+				limit(0)
+			{
+				//create();
+			}
 
 			// fill constructor 
 			explicit
@@ -56,8 +56,7 @@ namespace ft {
 							const allocator_type& alloc= allocator_type()) :
 				_allocator(alloc),
 				data(0),
-				limit(0),
-				size(n)
+				limit(0)
 			{}
 
 			// range constructor
@@ -65,27 +64,48 @@ namespace ft {
 			vector (InputIterator first, InputIterator last,
 							const allocator_type& alloc = allocator_type()) :
 								_allocator(alloc),
-								data(0),
-								size(0)
+								data(0)
 			{
-				for(; first != last; first++)
-					size++;
+				(void) first;
+				(void) last;
 			}
-
+	
 			// copy constructor
-			vector (const vector& x) :
-				_allocator(x._allocator),
-				data(NULL),
-				size(0)
+			vector (const vector& rhs) :
+				_allocator(rhs._allocator),
+				data(NULL)
 			{
-					*this = x;
+				// create(x.begin(), x.end());
 			}
 
 			// destructor
 			~vector() {}
 
-			vector& operator= (const vector& x) {
-				*this = x;
+			/**
+			 * @details We explicitly test for self-assignment by comparing the pointer
+			 * and 'this', which points to the left-hand side. If the objects are the same,
+			 * then there's nothing to do in the assignment operator, and we immediatly
+			 * fall through to the return statement.
+			 * If the objects are different, we need to free the old space and assign new
+			 * values to each element, copying the contents from the right-hand side to the
+			 * newly allocated array.
+			 * 
+			 * If we didn't check for self-assignment, we would always uncreate() the existing
+			 * array from the left-hand operand, destroying the elements and returning the space
+			 * that had been used. However, if the two operands were the same object, then the 
+			 * right operand, the result would be that, when we freed the space held by the left 
+			 * operand, we would also have freed the space for the right-hand object. When create()
+			 * attempted to copy the elements from 'rhs', those elements would have been destroyed
+			 * and the memory returned to the system.
+			* /
+			vector& operator= (const vector& rhs) {
+				// check for Self-assignment
+			//	if (&rhs != this) {
+			//		// free the array in the left-hand side
+			//		 uncreate();
+			//		// copy elements from the right-hand to the left-hand side
+			//		 create(rhs.begin(), rhs.end());
+			//	}
 				return *this;
 			}
 
@@ -102,12 +122,16 @@ namespace ft {
 
 			// end: Return iterator to end
 			iterator end() {
-				return data + size;
+				return limit;
+			}
+
+			const_iterator end() const {
+				return limit;
 			}
 
 			// rbegin: 				Return reverse iterator to reverse beginning
 			iterator rbegin() {
-				return data + size;
+				return data + limit;
 			}
 
 			// rend: 					Return reverse iterator ro reverse end
@@ -136,6 +160,9 @@ namespace ft {
 
 			/*** Capacity ***/
 			// size: 					Return size
+			size_type size() const {
+				return limit - data;
+			}
 			// maxsize: 			Return maximum size
 			// resize: 				Change size
 			// capacity: 			Return size of allocated storage capacity
@@ -160,7 +187,9 @@ namespace ft {
 			/*** Modifiers ***/
 			// assign: 				Assign vector content
 			// push_back: 		Add element at the end
-			void push_back( const value_type& value ) {};
+			void push_back( const value_type& value ) {
+				(void) value;
+			};
 			// pop_back:			Delete last element
 			// insert:				Insert elements
 			// erase:					Erase elements
@@ -212,3 +241,7 @@ namespace ft {
 }
 
 #endif
+
+// Resources: 
+//	Accelerated C++ Practical Programming by Example - Andrew Koenig, Barbara E. Moo
+// 	11.3.3 Assignment is not initialization (bookmark)
