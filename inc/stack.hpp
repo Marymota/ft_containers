@@ -18,7 +18,7 @@ namespace ft {
 		*	Container: Underlying container object type, where the elements are stored.
 		*	Aliases as member type stack::container_type
 	*/
-	template< class T, class Container = std::vector<T> > //change to ft::vector when finished
+	template< class T, class Container = ft::vector<T> > //change to ft::vector when finished
 	class stack {
 		public:
 //											Member type									Definition

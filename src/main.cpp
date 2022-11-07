@@ -117,9 +117,16 @@
 
 void vector() {
 	ft::vector<int> first;
-	//ft::vector<int> second (4,100);
-	//ft::vector<int> third (second.begin(), second.end());
-	//ft::vector<int> fourth (second);
+	ft::vector<int> second (4,100);
+	ft::vector<int> third (second.begin(), second.end());
+	//ft::vector<int> fourth (third); // segfault
+
+	int myints[] = {16, 2, 77, 29};
+	ft::vector<int> fifth (myints, myints + sizeof(myints) / sizeof(int));
+	std::cout << "The contents of fifth are:";
+	for (ft::vector<int>::iterator it = fifth.begin(); it != fifth.end(); ++it)
+		std::cout << ' ' << *it;
+	std::cout << '\n';
 }
 
 void stack_operators() {
@@ -206,9 +213,9 @@ void stack() {
 }
 
 int main() {
-//	stack(); 	// Print "3 2 4 77"
-//	stack_operators();
-	vector();
+	stack(); 	// Print "3 2 4 77"
+	stack_operators();
+//	vector();
 	return 0;
 }
 
