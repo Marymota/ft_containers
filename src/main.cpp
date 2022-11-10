@@ -8,7 +8,7 @@
 //#else
 //	#include <../inc/map.hpp>
 		#include "../inc/stack.hpp"
-//	#include <../inc/vector.hpp>
+		#include "../inc/vector.hpp"
 //#endif
 
 // #include <stdlib.h>
