@@ -19,6 +19,22 @@ namespace ft {
 
 	template <class T, class Alloc = std::allocator<T> > // generic template
 	class vector {
+
+		struct input_iterator_tag {};
+		struct putput_iterator_tag {};
+		struct forward_iterator_tag : public input_iterator_tag {};
+		struct bidirectional_iterator_tag : public forward_iterator_tag {};
+		struct random_access_iterator_tag : public bidirectional_iterator_tag {};
+
+		template <typename Iterator >
+		struct iterator_traits {
+			typedef typename	Iterator::iterator_category iterator_category;
+			typedef typename	Iterator::value_type 				value_type;
+			typedef	typename	Iterator::difference_type		difference_type;
+			typedef	typename	Iterator::pointer						pointer;
+			typedef typename	Iterator::reference					reference;
+		};
+
 		public: // interface
 //											Definition														Member type
 			typedef						T																			value_type;
@@ -28,8 +44,8 @@ namespace ft {
 			typedef typename	Alloc::pointer												pointer;
 			typedef typename	Alloc::const_pointer									const_pointer;
 
-			typedef 					T*							iterator;
-			typedef						const T*				const_iterator;
+			typedef 					T*																		iterator;
+			typedef						const T*															const_iterator;
 			typedef typename 	std::reverse_iterator<iterator>				reverse_iterator;
 			typedef typename	std::reverse_iterator<const_iterator>	const_reverse_iterator;
 			typedef 					ptrdiff_t															difference_type;
@@ -132,82 +148,33 @@ namespace ft {
 				return *this;
 			}
 			*/
-			// Iterators 
-
-			// begin: Return iterator to beginning
-			iterator begin() {
-				return data;
-			}
-
-			const_iterator begin() const {
-				return data;
-			}
-
-			// end: Return iterator to end
-			iterator end() {
-				return &data[begin() + avail];
-			}
-
-			const_iterator end() const {
-				return data + avail;
-			}
-
-			// rbegin: 				Return reverse iterator to reverse beginning
-			reverse_iterator rbegin() {
-				return reverse_iterator(&data[begin() + avail]);
-			}
-
-			// rend: 					Return reverse iterator to reverse end
-			reverse_iterator rend() {
-				return reverse_iterator(data);
-			}
-
-			// cbegin 				Return const_iterator to beginning
-			const_iterator cbegin() const{
-				return data;
-			};
-
-			// cend 					Return const_iterator to end
-			const_iterator cend() {
-				return &data[begin() + avail];
-			};
-
-			// crbegin				Return cons_reverse_iterator to reverse beginning
-			const_iterator crbegin() {
-				return reverse_iterator(&data[begin() + avail]);
-			}
-			// crend					Return const_reverse_iterator to reverse end
-			const_iterator crend() {
-				return reverse_iterator(data);
-			}
+		
+			/*** Iterators ***/ 
+			iterator begin() { 												return data; }
+			const_iterator begin() const {						return data; }
+			iterator end() {													return avail; }
+			const_iterator end() const {							return avail; }
+			reverse_iterator rbegin() {								return reverse_iterator( end()); }
+			const_reverse_iterator rbegin() const { 	return const_reverse_iterator( end()); }
+			reverse_iterator rend() {									return reverse_iterator( begin()); }
+			const_reverse_iterator rend() const {			return const_reverse_iterator( begin()); }
+			const_iterator cbegin() const {						return const_iterator( begin()); }
+			const_iterator cend() const {							return const_iterator( end()); }
+			const_reverse_iterator crbegin() const {	return const_reverse_iterator( end()); }
+			const_reverse_iterator crend() const {		return const_reverse_iterator( begin()); }
 
 			/*** Capacity ***/
-			// size: 					Return size
-			size_type size() const {
-				return &data[limit];
-			}
-			// maxsize: 			Return maximum size
-			// resize: 				Change size
-			// capacity: 			Return size of allocated storage capacity
-			// empty: 				Test whether vector is empty
-			bool empty() const {
-				if (!data)
-					return (true);
-				return (false);
-
-			}
+			size_type size() const { 			return size_type(end() - begin()); }
+			size_type max_size() const { 	return limit; } //?
+			// resize
+			size_type capacity() const { 	return limit - begin(); }
+			bool empty() const { 					return begin() == end(); }
 			// reserve: 			Request a change in capacity
 			// shrink_to_fit: Shrink to fit
 
 			/*** Element access ***/
-			// operator[]: 		Access element
-			reference operator[](size_type n) {
-				return &data[n];
-			}
-			
-			const_reference operator[](size_type n) const {
-				return &data[n];
-			}
+			reference operator[](size_type n) { 						return *(begin() + n );}
+			const_reference operator[](size_type n) const { return *(begin() + n );}
 			// at: 						Access element
 			// front: 				Access first element
 			// back: 					Access last element
@@ -287,6 +254,9 @@ namespace ft {
 	template <class T, class Alloc> 
 	bool operator >=	(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs) { 
 		return lhs	>=	rhs; }
+
+
+
 
 }
 
