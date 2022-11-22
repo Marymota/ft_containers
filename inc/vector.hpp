@@ -1,9 +1,13 @@
 #ifndef _VECTOR_HPP_
 #define _VECTOR_HPP_
 
+#include <iostream>
+#include <iterator>
 #include <memory>		// add allocator<T>
 #include <cstddef> 	// add ptrdiff_t
-#include <iterator>
+#include "iterator_traits.hpp"
+#include "iterator.hpp"
+
 
 /** @details The <memory> header provides a class, called allocator<T>, that allocates
  * a block of uninitialized memory that is intended to contain objects of type T, and
@@ -20,21 +24,6 @@ namespace ft {
 	template <class T, class Alloc = std::allocator<T> > // generic template
 	class vector {
 
-		struct input_iterator_tag {};
-		struct putput_iterator_tag {};
-		struct forward_iterator_tag : public input_iterator_tag {};
-		struct bidirectional_iterator_tag : public forward_iterator_tag {};
-		struct random_access_iterator_tag : public bidirectional_iterator_tag {};
-
-		template <typename Iterator >
-		struct iterator_traits {
-			typedef typename	Iterator::iterator_category iterator_category;
-			typedef typename	Iterator::value_type 				value_type;
-			typedef	typename	Iterator::difference_type		difference_type;
-			typedef	typename	Iterator::pointer						pointer;
-			typedef typename	Iterator::reference					reference;
-		};
-
 		public: // interface
 //											Definition														Member type
 			typedef						T																			value_type;
@@ -44,17 +33,17 @@ namespace ft {
 			typedef typename	Alloc::pointer												pointer;
 			typedef typename	Alloc::const_pointer									const_pointer;
 
-			typedef 					T*																		iterator;
-			typedef						const T*															const_iterator;
-			typedef typename 	std::reverse_iterator<iterator>				reverse_iterator;
-			typedef typename	std::reverse_iterator<const_iterator>	const_reverse_iterator;
-			typedef 					ptrdiff_t															difference_type;
-			typedef 					size_t																size_type;
+			typedef	ft::iterator<T>												iterator;
+			typedef	ft::iterator<const T>									const_iterator;
+			typedef std::reverse_iterator<iterator>				reverse_iterator;
+			typedef std::reverse_iterator<const_iterator>	const_reverse_iterator;
+			typedef typename iterator::difference_type		difference_type;
+			typedef size_t																size_type;
 
 		private: // implementation
 			allocator_type	allocator;	//	Allocator object
 			iterator	data;							//	First element
-			iterator	avail;						//	(One past) the last element in the vec
+			iterator 	avail;						//	(One past) the last element in the vec
 			iterator	limit;						//	(One past) the allocated memory
 			//size_type				size;			//	Initial container size(number of elements)
 
@@ -108,7 +97,7 @@ namespace ft {
 
 			// destructor
 			~vector() {
-				if (data) {
+				if (data == 0) {
 					// destroy (in reverse order) the elements that were constructed
 					iterator it = avail;
 					while (it != data)
@@ -150,10 +139,10 @@ namespace ft {
 			*/
 		
 			/*** Iterators ***/ 
-			iterator begin() { 												return data; }
-			const_iterator begin() const {						return data; }
-			iterator end() {													return avail; }
-			const_iterator end() const {							return avail; }
+			iterator begin() { 												return iterator(data); }
+			const_iterator begin() const {						return const_iterator(data); }
+			iterator end() {													return iterator(data + avail); }
+			const_iterator end() const {							return const_iterator(data + avail); }
 			reverse_iterator rbegin() {								return reverse_iterator( end()); }
 			const_reverse_iterator rbegin() const { 	return const_reverse_iterator( end()); }
 			reverse_iterator rend() {									return reverse_iterator( begin()); }
