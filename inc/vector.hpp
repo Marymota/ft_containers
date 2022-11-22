@@ -1,8 +1,8 @@
 #ifndef _VECTOR_HPP_
 #define _VECTOR_HPP_
 
+#include <algorithm>
 #include <iostream>
-#include <iterator>
 #include <memory>		// add allocator<T>
 #include <cstddef> 	// add ptrdiff_t
 #include "iterator_traits.hpp"
@@ -42,9 +42,9 @@ namespace ft {
 
 		private: // implementation
 			allocator_type	allocator;	//	Allocator object
-			iterator	data;							//	First element
-			iterator 	avail;						//	(One past) the last element in the vec
-			iterator	limit;						//	(One past) the allocated memory
+			pointer		data;							//	First element
+			pointer 	avail;						//	(One past) the last element in the vec
+			pointer		limit;						//	(One past) the allocated memory
 			//size_type				size;			//	Initial container size(number of elements)
 
 		public:
@@ -79,10 +79,11 @@ namespace ft {
 			vector (InputIterator first, InputIterator last,
 							const allocator_type& alloc = allocator_type()) :
 								allocator(alloc),
-								data(0)
+								data(pointer()),
+								avail(last - first),
+								limit(avail)
 			{
 				data = allocator.allocate(last - first);
-				limit = avail = data;
 				std::uninitialized_copy(first, last, data);
 			}
 	
@@ -96,17 +97,15 @@ namespace ft {
 			}
 
 			// destructor
-			~vector() {
-				if (data == 0) {
-					// destroy (in reverse order) the elements that were constructed
-					iterator it = avail;
-					while (it != data)
-						allocator.destroy(--it);
-					// return all the space that was allocated
-					allocator.deallocate(data, limit - data);
+			~vector() { 
+				size_type save_size = this->size();
+				for (size_type i = 0; i < save_size; i++)
+				{
+					limit--;
+					allocator.destroy(limit);
 				}
-				// reset pointers to indicate that the vector is empty again
-				data = limit = avail = 0;
+
+				allocator.deallocate(data, limit);	
 			}
 
 			/**
@@ -167,7 +166,7 @@ namespace ft {
 			// at: 						Access element
 			// front: 				Access first element
 			// back: 					Access last element
-			reference back() { return *(end() - 1); }
+			reference back() { return *(end()--); }
 			const_reference back() const { return end() - 1; }	
 			// data: 					Access data
 
@@ -243,9 +242,6 @@ namespace ft {
 	template <class T, class Alloc> 
 	bool operator >=	(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs) { 
 		return lhs	>=	rhs; }
-
-
-
 
 }
 

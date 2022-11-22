@@ -11,7 +11,6 @@
 	*/
 
 namespace ft {
-
 	/**	Template parameters:
 		*	<T> type of the elements; Aliases as member type stack::valye_type
 		*	Container: Underlying container object type, where the elements are stored.

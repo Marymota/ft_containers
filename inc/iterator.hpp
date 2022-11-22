@@ -19,6 +19,10 @@ namespace ft {
 			iterator(const iterator& copy) : ptr(copy.ptr) {}
 			virtual ~iterator() {}
 
+			operator iterator<const value_type>() const {
+				return iterator<const value_type>(ptr);
+			}
+
 			iterator& operator=(const iterator& copy) {
 				if(this != &copy)
 					ptr = copy.ptr;
@@ -28,15 +32,22 @@ namespace ft {
 			T* ptr;
 
 		public:
-			bool operator!=(const iterator& x) const { return (*this != x); }
-			bool operator==(const iterator& x) const { return (*this == x); }
+			bool operator!=(const iterator& x) const 	{ return (*this != x);}
+			bool operator==(const iterator& x) const 	{ return (*this == x);}
+			bool operator>(const iterator& x) const 	{ return (*this > x);	}
+			bool operator>=(const iterator& x) const 	{ return (*this >= x);}
+			bool operator<(const iterator& x) const 	{ return (*this < x); }
+			bool operator<=(const iterator& x) const 	{ return (*this <= x);}
+
+			iterator operator-(const iterator& x) const { return(ptr - x.ptr);}
+			iterator operator+(const iterator& x) const { return(ptr + x.ptr);}
+
+
 			iterator operator++() { ++ptr; return *this; }
 			iterator operator++(int) { iterator it(*this); ++ptr; return it; }
 			iterator operator--() { --ptr; return *this; }
 			iterator operator--(int) { iterator it(*this); --ptr; return it; }
 			reference operator*() const { return *ptr; }
-
-			
 	};
 }
 

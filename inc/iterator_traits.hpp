@@ -4,7 +4,7 @@
 #include <cstddef>
 
 namespace ft {
-
+	
 	struct input_iterator {};
 	struct output_iterator {};
 	struct forward_iterator : public input_iterator {};
