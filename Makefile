@@ -16,7 +16,7 @@ FLAG_SHADOW			:=		-Wshadow -Wno-shadow
 FLAG_STD				:=		-std=c++98
 FLAG_MAKE				:=		-MMD -MP
 FLAG_DEBUG			:= 		-g
-FLAG_OPT				:=		-03
+FLAG_OPT				:=		-00
 FLAG_COMP				:=		$(FLAG_WARN) $(FLAG_STD) $(FLAG_MAKE) $(FLAG_DEBUG) $(FLAG_MLEAK) $(FLAG_SHADOW)
 
 FLAG_MLEAK			:= 		-fsanitize=address

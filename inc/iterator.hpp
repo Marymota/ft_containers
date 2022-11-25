@@ -32,12 +32,12 @@ namespace ft {
 			T* ptr;
 
 		public:
-			bool operator!=(const iterator& x) const 	{ return (*this != x);}
-			bool operator==(const iterator& x) const 	{ return (*this == x);}
-			bool operator>(const iterator& x) const 	{ return (*this > x);	}
-			bool operator>=(const iterator& x) const 	{ return (*this >= x);}
-			bool operator<(const iterator& x) const 	{ return (*this < x); }
-			bool operator<=(const iterator& x) const 	{ return (*this <= x);}
+			bool operator!=(const iterator& x) const 	{ return (ptr != 	x.ptr);}
+			bool operator==(const iterator& x) const 	{ return (ptr == 	x.ptr);}
+			bool operator>(const iterator& x) const 	{ return (ptr > 	x.ptr);	}
+			bool operator>=(const iterator& x) const 	{ return (ptr >= 	x.ptr);}
+			bool operator<(const iterator& x) const 	{ return (ptr < 	x.ptr); }
+			bool operator<=(const iterator& x) const 	{ return (ptr <= 	x.ptr);}
 
 			iterator operator-(const iterator& x) const { return(ptr - x.ptr);}
 			iterator operator+(const iterator& x) const { return(ptr + x.ptr);}

@@ -41,11 +41,10 @@ namespace ft {
 			typedef size_t																size_type;
 
 		private: // implementation
-			allocator_type	allocator;	//	Allocator object
-			pointer		data;							//	First element
-			pointer 	avail;						//	(One past) the last element in the vec
-			pointer		limit;						//	(One past) the allocated memory
-			//size_type				size;			//	Initial container size(number of elements)
+			allocator_type	allocator;				//	Allocator object
+			pointer					data;							//	First element
+			pointer 				avail;						//	(One past) the last element in the vec
+			pointer					limit;						//	(One past) the allocated memory
 
 		public:
 		/********************************************************************
@@ -92,7 +91,7 @@ namespace ft {
 				allocator(rhs.allocator),
 				data(NULL)
 			{
-				data = allocator.allocate(end() - begin());
+				data = allocator.allocate(limit - data);
 				limit = avail = std::uninitialized_copy(begin(), end(), data);
 			}
 
@@ -102,10 +101,10 @@ namespace ft {
 				for (size_type i = 0; i < save_size; i++)
 				{
 					limit--;
-					allocator.destroy(limit);
+					allocator.destroy(limit);	//void destroy (pointer p);
 				}
 
-				allocator.deallocate(data, limit);	
+				allocator.deallocate(data, (size_type)limit);	//void deallocate (pointer p, size_type n);
 			}
 
 			/**
@@ -140,8 +139,8 @@ namespace ft {
 			/*** Iterators ***/ 
 			iterator begin() { 												return iterator(data); }
 			const_iterator begin() const {						return const_iterator(data); }
-			iterator end() {													return iterator(data + avail); }
-			const_iterator end() const {							return const_iterator(data + avail); }
+			iterator end() {													return iterator(avail - 1); }
+			const_iterator end() const {							return const_iterator(avail - 1); }
 			reverse_iterator rbegin() {								return reverse_iterator( end()); }
 			const_reverse_iterator rbegin() const { 	return const_reverse_iterator( end()); }
 			reverse_iterator rend() {									return reverse_iterator( begin()); }
@@ -152,11 +151,11 @@ namespace ft {
 			const_reverse_iterator crend() const {		return const_reverse_iterator( begin()); }
 
 			/*** Capacity ***/
-			size_type size() const { 			return size_type(end() - begin()); }
+			size_type size() const { 			return size_type(avail - data); }
 			size_type max_size() const { 	return limit; } //?
 			// resize
 			size_type capacity() const { 	return limit - begin(); }
-			bool empty() const { 					return begin() == end(); }
+			bool empty() const { 					return (begin() == avail); }
 			// reserve: 			Request a change in capacity
 			// shrink_to_fit: Shrink to fit
 
@@ -167,7 +166,7 @@ namespace ft {
 			// front: 				Access first element
 			// back: 					Access last element
 			reference back() { return *(end()--); }
-			const_reference back() const { return end() - 1; }	
+			const_reference back() const { return *(end()--); }	
 			// data: 					Access data
 
 			/*** Modifiers ***/
@@ -193,7 +192,7 @@ namespace ft {
 			};
 			// pop_back:			Delete last element
 			void pop_back() {
-				allocator.destroy(end() - 1);
+				allocator.destroy(avail - 1);
 				--avail;
 			}
 			// insert:				Insert elements
