@@ -131,17 +131,18 @@
 
 void stack_operators() {
 	ft::stack<int> st;
-
+	ft::stack<int> st1;
 	// push three elements into the stack
 	st.push(1);
 	st.push(2);
 	st.push(3);
+
 	
 	// copy
-	ft::stack<int> st1(st);
+//	ft::stack<int> st1(st);
 //
-//	if (st == st1)
-//		std::cout << "Both stacks are equal" << std::endl;
+	if (st == st1)
+		std::cout << "Both stacks are equal" << std::endl;
 //
 //	if (st <= st1)
 //		std::cout << "stack is less or equal than stack1" << std::endl;

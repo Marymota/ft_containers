@@ -103,7 +103,6 @@ namespace ft {
 					limit--;
 					allocator.destroy(limit);	//void destroy (pointer p);
 				}
-
 				allocator.deallocate(data, (size_type)limit);	//void deallocate (pointer p, size_type n);
 			}
 
