@@ -191,31 +191,31 @@ void stack() {
 
 	//pop and printtwo elements from the stack
 	std::cout << st.top() << ' ';
-	st.pop();
-	std::cout << st.top() << ' ';
-	st.pop();
-
-	//modify top element
-	st.top() = 77;
-
-	//push two new elements
-	st.push(4);
-	st.push(5);
-
-	//pop one element without processing it
-	st.pop() ;
-
-	// pop and print remaining elements
-	while (!st.empty()) {
-		std::cout << st.top() << ' ';
-		st.pop();
-	}
-	std::cout << std::endl;
+//	st.pop();
+//	std::cout << st.top() << ' ';
+//	st.pop();
+//
+//	//modify top element
+//	st.top() = 77;
+//
+//	//push two new elements
+//	st.push(4);
+//	st.push(5);
+//
+//	//pop one element without processing it
+//	st.pop() ;
+//
+//	// pop and print remaining elements
+//	while (!st.empty()) {
+//		std::cout << st.top() << ' ';
+//		st.pop();
+//	}
+//	std::cout << std::endl;
 }
 
 int main() {
 	stack(); 	// Print "3 2 4 77"
-	stack_operators();
+//	stack_operators();
 //	vector();
 	return 0;
 }

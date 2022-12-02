@@ -6,7 +6,7 @@
 #include <memory>		// add allocator<T>
 #include <cstddef> 	// add ptrdiff_t
 #include "iterator_traits.hpp"
-#include "iterator.hpp"
+#include "random_access_iterator.hpp"
 
 
 /** @details The <memory> header provides a class, called allocator<T>, that allocates
@@ -21,30 +21,32 @@
 */
 namespace ft {
 
+	// Container definition
 	template <class T, class Alloc = std::allocator<T> > // generic template
 	class vector {
 
 		public: // interface
-//											Definition														Member type
-			typedef						T																			value_type;
-			typedef						Alloc																	allocator_type;
-			typedef typename	Alloc::reference 											reference;
-			typedef typename	Alloc::const_reference 								const_reference;
-			typedef typename	Alloc::pointer												pointer;
-			typedef typename	Alloc::const_pointer									const_pointer;
 
-			typedef	ft::iterator<T>												iterator;
-			typedef	ft::iterator<const T>									const_iterator;
-			typedef std::reverse_iterator<iterator>				reverse_iterator;
-			typedef std::reverse_iterator<const_iterator>	const_reverse_iterator;
-			typedef typename iterator::difference_type		difference_type;
-			typedef size_t																size_type;
+//											Definition							Member type
+			typedef						T												value_type;
+			typedef						Alloc										allocator_type;
+			typedef typename	Alloc::reference 				reference;
+			typedef typename	Alloc::const_reference 	const_reference;
+			typedef typename	Alloc::pointer					pointer;
+			typedef typename	Alloc::const_pointer		const_pointer;
+			typedef typename	Alloc::difference_type	difference_type;
+			typedef	size_t														size_type;
+
+			typedef	ft::random_access_iterator<value_type>					iterator;
+			typedef	ft::random_access_iterator<const value_type>		const_iterator;
+			typedef std::reverse_iterator<iterator>									reverse_iterator;
+			typedef std::reverse_iterator<const_iterator>						const_reverse_iterator;
 
 		private: // implementation
 			allocator_type	allocator;				//	Allocator object
 			pointer					data;							//	First element
-			pointer 				avail;						//	(One past) the last element in the vec
-			pointer					limit;						//	(One past) the allocated memory
+			size_type 			_size;						//	(One past) the last element in the vec
+			size_type				_capacity;				//	(One past) the allocated memory
 
 		public:
 		/********************************************************************
@@ -57,8 +59,8 @@ namespace ft {
 			vector (const allocator_type& alloc = allocator_type()) :
 				allocator(alloc),
 				data(0),
-				avail(0),
-				limit(0)
+				_size(0),
+				_capacity(0)
 			{}
 
 			// fill constructor 
@@ -67,10 +69,10 @@ namespace ft {
 							const allocator_type& alloc= allocator_type()) : allocator(alloc)
 			{
 				data = alloc(n);
-				limit = avail = data + n;
+				_capacity = _size = data + n;
 				// Constructs all the elements in the range (first, last)
 				// initializing them to the value of 'val'
-				uninitialized_fill(data, limit, val);
+				uninitialized_fill(data, _capacity, val);
 			}
 
 			// range constructor
@@ -79,8 +81,8 @@ namespace ft {
 							const allocator_type& alloc = allocator_type()) :
 								allocator(alloc),
 								data(pointer()),
-								avail(last - first),
-								limit(avail)
+								_size(last - first),
+								_capacity(size)
 			{
 				data = allocator.allocate(last - first);
 				std::uninitialized_copy(first, last, data);
@@ -91,19 +93,16 @@ namespace ft {
 				allocator(rhs.allocator),
 				data(NULL)
 			{
-				data = allocator.allocate(limit - data);
-				limit = avail = std::uninitialized_copy(begin(), end(), data);
+				data = allocator.allocate(_capacity - data);
+				_capacity = _size = std::uninitialized_copy(begin(), end(), data);
 			}
 
 			// destructor
 			~vector() { 
-				size_type save_size = this->size();
-				for (size_type i = 0; i < save_size; i++)
-				{
-					limit--;
-					allocator.destroy(limit);	//void destroy (pointer p);
-				}
-				allocator.deallocate(data, (size_type)limit);	//void deallocate (pointer p, size_type n);
+				for (size_type i = 0; i < _size; i++)
+					allocator.destroy(data + i);
+				if(_capacity)
+					allocator.deallocate(data, _capacity);
 			}
 
 			/**
@@ -138,8 +137,8 @@ namespace ft {
 			/*** Iterators ***/ 
 			iterator begin() { 												return iterator(data); }
 			const_iterator begin() const {						return const_iterator(data); }
-			iterator end() {													return iterator(avail - 1); }
-			const_iterator end() const {							return const_iterator(avail - 1); }
+			iterator end() {													return iterator(data +_size); }
+			const_iterator end() const {							return const_iterator(data + _size); }
 			reverse_iterator rbegin() {								return reverse_iterator( end()); }
 			const_reverse_iterator rbegin() const { 	return const_reverse_iterator( end()); }
 			reverse_iterator rend() {									return reverse_iterator( begin()); }
@@ -150,11 +149,11 @@ namespace ft {
 			const_reverse_iterator crend() const {		return const_reverse_iterator( begin()); }
 
 			/*** Capacity ***/
-			size_type size() const { 			return size_type(avail - data); }
-			size_type max_size() const { 	return limit; } //?
+			size_type size() const { 			return _size; }
+			size_type max_size() const { 	return _capacity; } //?
 			// resize
-			size_type capacity() const { 	return limit - begin(); }
-			bool empty() const { 					return (begin() == avail); }
+			size_type capacity() const { 	return _capacity; }
+			bool empty() const { 					return (_size == 0); }
 			// reserve: 			Request a change in capacity
 			// shrink_to_fit: Shrink to fit
 
@@ -164,37 +163,43 @@ namespace ft {
 			// at: 						Access element
 			// front: 				Access first element
 			// back: 					Access last element
-			reference back() { return *(end()--); }
-			const_reference back() const { return *(end()--); }	
+			reference back() { return *(data + _size - 1); }
+			const_reference back() const { return *(data + _size - 1); }	
 			// data: 					Access data
 
 			/*** Modifiers ***/
 			// assign: 				Assign vector content
 			// push_back: 		Add element at the end
-			void push_back( const value_type& value )
-			{
-				// when growing, allocate twice as much space as currently in use
-				size_type new_size = std::max(2 * (limit - data), ptrdiff_t(1));
+			void push_back(const T& val){
+				if (_size != _capacity) {
+					allocator.construct(&data[_size], val);
+					_size++;
+				}
+				else
+					insert(end(), val);
+			}
 
-				//allocate  new space and copy existing elements to the new space
-				pointer new_data = allocator.allocate(new_size);
-				pointer new_avail = std::uninitialized_copy(data, avail, new_data);
-
-				//return the old space
-				this->~vector();
-
-				//reset pointers to the newly allocated space
-				data = new_data;
-				avail = new_avail;
-				limit = data + new_size;
-				allocator.construct(avail++, value);
-			};
 			// pop_back:			Delete last element
 			void pop_back() {
-				allocator.destroy(avail - 1);
-				--avail;
+				allocator.destroy(data - 1);
+				_size--;
 			}
-			// insert:				Insert elements
+
+			// single element
+			iterator insert (iterator position, const value_type& val) {
+				size_type new_size = _size + 1;
+				if (new_size <= _capacity) {
+					
+				}
+			}
+//
+//			// fill
+//			void insert (iterator position, size_type n, const value_type& val);
+//
+//			// range
+//			template <class InputIterator>
+//			void insert (iterator position, InputIterator first, InputIterator last);
+			
 			// erase:					Erase elements
 			// swap:					Swap content
 			// emplace:				Construct and insert element
