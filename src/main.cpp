@@ -7,8 +7,8 @@
 //	namespace ft = std;
 //#else
 //	#include <../inc/map.hpp>
-		#include "../inc/stack.hpp"
-		#include "../inc/vector.hpp"
+	#include "../inc/stack.hpp"
+	#include "../inc/vector.hpp"
 //#endif
 
 // #include <stdlib.h>
@@ -131,16 +131,16 @@
 
 void stack_operators() {
 	ft::stack<int> st;
-	ft::stack<int> st1;
 	// push three elements into the stack
 	st.push(1);
 	st.push(2);
 	st.push(3);
 
-	
 	// copy
-//	ft::stack<int> st1(st);
-//
+	ft::stack<int> st1(st);
+	std::cout << st.size() << std::endl;
+	std::cout << st1.size() << std::endl;
+
 	if (st == st1)
 		std::cout << "Both stacks are equal" << std::endl;
 //
@@ -191,31 +191,61 @@ void stack() {
 
 	//pop and printtwo elements from the stack
 	std::cout << st.top() << ' ';
-//	st.pop();
-//	std::cout << st.top() << ' ';
-//	st.pop();
-//
+	st.pop();
+	std::cout << st.top() << ' ';
+	st.pop();
+
 //	//modify top element
-//	st.top() = 77;
-//
-//	//push two new elements
-//	st.push(4);
-//	st.push(5);
-//
-//	//pop one element without processing it
-//	st.pop() ;
-//
-//	// pop and print remaining elements
-//	while (!st.empty()) {
-//		std::cout << st.top() << ' ';
-//		st.pop();
-//	}
-//	std::cout << std::endl;
+	st.top() = 77;
+
+	//push two new elements
+	st.push(4);
+	st.push(5);
+
+	//pop one element without processing it
+	st.pop() ;
+
+	// pop and print remaining elements
+	while (!st.empty()) {
+		std::cout << st.top() << ' ';
+		st.pop();
+	}
+	std::cout << std::endl;
+}
+
+void test_vector() {
+	ft::vector<int> vec;
+	vec.push_back(0);
+	while (!vec.empty()) {
+		std::cout << "c" << vec.capacity() << ' ';
+		std::cout << "s" << vec.size() << ' ';
+		vec.insert(vec.begin(), 1);
+		std::cout << "c" << vec.capacity() << ' ';
+		std::cout << "s" << vec.size() << ' ';
+		vec.push_back(2);
+		std::cout << "c" << vec.capacity() << ' ';
+		std::cout << "s" << vec.size() << ' ';
+		vec.push_back(3);
+		std::cout << "c" << vec.capacity() << ' ';
+		std::cout << "s" << vec.size() << ' ';
+		vec.push_back(4);
+		std::cout << "c" << vec.capacity() << ' ';
+		std::cout << "s" << vec.size() << ' ';
+		std::cout << "[" << *(vec.end() - 1) << "]" << ' '; // last element pushed (3)
+
+		vec.pop_back();
+		vec.pop_back();
+		vec.pop_back();
+		vec.pop_back();
+		vec.pop_back();
+		std::cout << std::endl;
+	}
 }
 
 int main() {
 	stack(); 	// Print "3 2 4 77"
-//	stack_operators();
+//	test_vector();
+	stack_operators();
 //	vector();
 	return 0;
 }

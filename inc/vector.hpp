@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>		// add allocator<T>
 #include <cstddef> 	// add ptrdiff_t
+#include <algorithm>
 #include "iterator_traits.hpp"
 #include "random_access_iterator.hpp"
 
@@ -27,26 +28,26 @@ namespace ft {
 
 		public: // interface
 
-//											Definition							Member type
-			typedef						T												value_type;
-			typedef						Alloc										allocator_type;
-			typedef typename	Alloc::reference 				reference;
-			typedef typename	Alloc::const_reference 	const_reference;
-			typedef typename	Alloc::pointer					pointer;
-			typedef typename	Alloc::const_pointer		const_pointer;
-			typedef typename	Alloc::difference_type	difference_type;
-			typedef	size_t														size_type;
+//		Definition																						Member type
+			typedef	T																							value_type;
+			typedef Alloc																					allocator_type;
+			typedef typename Alloc::pointer												pointer;
+			typedef typename Alloc::reference											reference;
+			typedef typename Alloc::const_pointer									const_pointer;
+			typedef typename Alloc::const_reference 							const_reference;
+			typedef typename Alloc::difference_type								difference_type;
+			typedef	typename Alloc::size_type											size_type;
 
-			typedef	ft::random_access_iterator<value_type>					iterator;
-			typedef	ft::random_access_iterator<const value_type>		const_iterator;
-			typedef std::reverse_iterator<iterator>									reverse_iterator;
-			typedef std::reverse_iterator<const_iterator>						const_reverse_iterator;
+			typedef	ft::random_access_iterator<value_type>				iterator;
+			typedef	ft::random_access_iterator<const value_type>	const_iterator;
+			typedef std::reverse_iterator<iterator>								reverse_iterator;
+			typedef std::reverse_iterator<const_iterator>					const_reverse_iterator;
 
-		private: // implementation
-			allocator_type	allocator;				//	Allocator object
-			pointer					data;							//	First element
-			size_type 			_size;						//	(One past) the last element in the vec
-			size_type				_capacity;				//	(One past) the allocated memory
+		protected: // implementation
+			allocator_type	_allocator;				//	Allocator object
+			pointer					_data;						//	First element
+			pointer 				_size;						//	Last element in the vector 
+			pointer					_capacity;				//	Las allocated piece of memory
 
 		public:
 		/********************************************************************
@@ -54,55 +55,53 @@ namespace ft {
 		 ********************************************************************/
 		/*** Constructors ***/
 
-			// Empty container constructor (default)
+			// DEFAULT CONSTRUCTOR
 			explicit
 			vector (const allocator_type& alloc = allocator_type()) :
-				allocator(alloc),
-				data(0),
+				_allocator(alloc),
+				_data(0),
 				_size(0),
 				_capacity(0)
 			{}
 
-			// fill constructor 
+			// FILL CONSTRUCTOR
 			explicit
 			vector (size_t n, const value_type& val = value_type(), 
-							const allocator_type& alloc= allocator_type()) : allocator(alloc)
+							const allocator_type& alloc= allocator_type()) : _allocator(alloc)
 			{
-				data = alloc(n);
-				_capacity = _size = data + n;
+				_data = alloc(n);
+				_capacity = _size = _data + n;
 				// Constructs all the elements in the range (first, last)
 				// initializing them to the value of 'val'
-				uninitialized_fill(data, _capacity, val);
+				uninitialized_fill(_data, _capacity, val);
 			}
 
-			// range constructor
+			// RANGE CONSTRUCTOR
 			template <class InputIterator>
 			vector (InputIterator first, InputIterator last,
 							const allocator_type& alloc = allocator_type()) :
-								allocator(alloc),
-								data(pointer()),
+								_allocator(alloc),
+								_data(pointer()),
 								_size(last - first),
 								_capacity(size)
 			{
-				data = allocator.allocate(last - first);
-				std::uninitialized_copy(first, last, data);
+				_data = _allocator.allocate(last - first);
+				std::uninitialized_copy(first, last, _data);
 			}
 	
-			// copy constructor
-			vector (const vector& rhs) :
-				allocator(rhs.allocator),
-				data(NULL)
-			{
-				data = allocator.allocate(_capacity - data);
-				_capacity = _size = std::uninitialized_copy(begin(), end(), data);
+			// COPY CONSTRUCTOR
+			vector (const vector& x) {
+				_data = _allocator.allocate(x.capacity());
+				_size = std::uninitialized_copy(x.begin(), x.end(), _data);
+				_capacity = _size;
 			}
 
-			// destructor
-			~vector() { 
-				for (size_type i = 0; i < _size; i++)
-					allocator.destroy(data + i);
-				if(_capacity)
-					allocator.deallocate(data, _capacity);
+		// DESTRUCTOR
+			~vector() {
+				for (pointer i = _data; i != _size; i++)
+					_allocator.destroy(i); // void destroy (pointer p);
+				int n = _capacity - _data;
+				_allocator.deallocate(_data, n); //	void deallocate (pointer p, size_type n);
 			}
 
 			/**
@@ -121,80 +120,126 @@ namespace ft {
 			 * operand, we would also have freed the space for the right-hand object. When create()
 			 * attempted to copy the elements from 'rhs', those elements would have been destroyed
 			 * and the memory returned to the system.
-			* /
-			vector& operator= (const vector& rhs) {
-				// check for Self-assignment
-			//	if (&rhs != this) {
-			//		// free the array in the left-hand side
-			//		 uncreate();
-			//		// copy elements from the right-hand to the left-hand side
-			//		 create(rhs.begin(), rhs.end());
-			//	}
-				return *this;
-			}
 			*/
 		
-			/*** Iterators ***/ 
-			iterator begin() { 												return iterator(data); }
-			const_iterator begin() const {						return const_iterator(data); }
-			iterator end() {													return iterator(data +_size); }
-			const_iterator end() const {							return const_iterator(data + _size); }
-			reverse_iterator rbegin() {								return reverse_iterator( end()); }
-			const_reverse_iterator rbegin() const { 	return const_reverse_iterator( end()); }
-			reverse_iterator rend() {									return reverse_iterator( begin()); }
-			const_reverse_iterator rend() const {			return const_reverse_iterator( begin()); }
-			const_iterator cbegin() const {						return const_iterator( begin()); }
-			const_iterator cend() const {							return const_iterator( end()); }
-			const_reverse_iterator crbegin() const {	return const_reverse_iterator( end()); }
-			const_reverse_iterator crend() const {		return const_reverse_iterator( begin()); }
+			//	ITERATORS
+			iterator begin(){ 											return iterator(_data);} 	
+			const_iterator begin() const{						return const_iterator(_data);}						
+			iterator end(){													return iterator(_size);}									
+			const_iterator end() const{							return const_iterator(_size);}						
+			reverse_iterator rbegin(){							return reverse_iterator(end());}				
+			const_reverse_iterator rbegin() const{ 	return const_reverse_iterator(end());}	
+			reverse_iterator rend(){								return reverse_iterator(begin());}			
+			const_reverse_iterator rend() const{		return const_reverse_iterator(begin());}
+			const_iterator cbegin() const{					return const_iterator(begin());}				
+			const_iterator cend() const{						return const_iterator(end());}						
+			const_reverse_iterator crbegin() const{	return const_reverse_iterator(end());}	
+			const_reverse_iterator crend() const{		return const_reverse_iterator(begin());}
 
-			/*** Capacity ***/
-			size_type size() const { 			return _size; }
+			// CAPACITY
+			size_type size() const {			return _size - _data; }
 			size_type max_size() const { 	return _capacity; } //?
 			// resize
-			size_type capacity() const { 	return _capacity; }
-			bool empty() const { 					return (_size == 0); }
+			size_type capacity() const { 	return _capacity - _data; }
+			bool empty() const { 					return (begin() == end()); }
 			// reserve: 			Request a change in capacity
 			// shrink_to_fit: Shrink to fit
 
-			/*** Element access ***/
+			// Element access
 			reference operator[](size_type n) { 						return *(begin() + n );}
 			const_reference operator[](size_type n) const { return *(begin() + n );}
 			// at: 						Access element
 			// front: 				Access first element
 			// back: 					Access last element
-			reference back() { return *(data + _size - 1); }
-			const_reference back() const { return *(data + _size - 1); }	
+			reference back() { return *(end() - 1); }
+			const_reference back() const { return *(end() - 1); }	
 			// data: 					Access data
 
-			/*** Modifiers ***/
+			// MODIFIERS
 			// assign: 				Assign vector content
-			// push_back: 		Add element at the end
-			void push_back(const T& val){
+
+			/**	@push_back: Add element at the end
+			 * 	If the storage capacity of the vector is not almost full 
+			 *	(-1 from full capacity) a new object (val) is constructed
+			 *	after the last element and the number of elements (size)
+			 *	is incremented by one.
+			 *	If the storage capacity of the vector is almost full its
+			 *	necessary to extend the vector.
+			 */ 
+			void push_back(const value_type& val){
 				if (_size != _capacity) {
-					allocator.construct(&data[_size], val);
+					_allocator.construct(_size, val); //void construct ( pointer p, const_reference val );
 					_size++;
 				}
 				else
-					insert(end(), val);
+					insert_aux(end(), val);
 			}
 
 			// pop_back:			Delete last element
 			void pop_back() {
-				allocator.destroy(data - 1);
+				_allocator.destroy(_data - 1);
 				_size--;
 			}
 
 			// single element
-			iterator insert (iterator position, const value_type& val) {
-				size_type new_size = _size + 1;
-				if (new_size <= _capacity) {
-					
+			iterator insert (iterator position, const T& val) {
+				size_type n = position - begin();
+				if (_size != _capacity && position != end()) {
+					_allocator.construct(_size, val); //void construct ( pointer p, const_reference val );
+					_size++;
+				}
+				else {
+					insert_aux(position, val);
+				}
+				return _data + n;
+			}
+
+			/**	@insert_aux:
+			 *	If size does not exceeds the capacity of the vector,
+			 *	we copy the vector elements to the space after position
+			 * 	and construct the new object at position.
+			 * 	If size is equal to the vector capacity a resize is necessary.
+			 * 	A new empty vector is created with double the size of the previous.
+			 *	All the elements until position are copied.
+			 *	The "val" is added into position.
+			 *	The rest of the content after position is copied to the new vector.
+			 * 	All old vector is destroyed and deallocated.
+			 *	The vector pointers are redirected to the new vector. 
+			 */ 
+
+			void insert_aux (iterator position, const value_type& val) {
+				if (_size != _capacity) {
+					std::uninitialized_copy(position, end() - 1, (position + 1));
+					_allocator.construct(&(*position), val);
+					_size++;
+				}
+				else { // No free space
+					const size_type old_size = size();
+					const size_type len = old_size != 0 ? 2 * old_size : 1; 							// if _size != 0 double it
+					pointer new_start = _allocator.allocate(len); 
+					pointer new_finish = new_start;
+					try {
+						new_finish = std::uninitialized_copy(begin(), position, new_start); // copy from start of old vec to position
+						_allocator.construct(new_finish, val); 															// add new value to position in the new vec
+						++new_finish;
+						new_finish = std::uninitialized_copy(position, end(), new_finish);	// copy the rest of the old vector after position
+					}
+					catch(...) {																													// If an error occurrs destroy the new allocated vector
+						for (pointer i = new_finish; i != new_start; i--) {
+							_allocator.destroy(i);
+						}
+						_allocator.deallocate(new_start, len);
+						throw;
+					}
+					for (pointer i = _data; i != _size; i++)
+						_allocator.destroy(i); 					// Destroy old vector data 
+					int n = _capacity - _data;
+					_allocator.deallocate(_data, n);	//	Deallocate old vector data 
+					_data = new_start;								//	Redirect pointers to new vector		
+					_size = new_finish;
+					_capacity = _data + len;
 				}
 			}
-//
-//			// fill
-//			void insert (iterator position, size_type n, const value_type& val);
 //
 //			// range
 //			template <class InputIterator>
@@ -224,7 +269,7 @@ namespace ft {
 			// Operator= : Assign content
 	template <class T, class Alloc> 
 	bool operator == (const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs) {
-		return lhs	==	rhs; }
+		return lhs.size()	== rhs.size(); }
 
 	template <class T, class Alloc> 
 	bool operator != (const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs) {

@@ -48,7 +48,6 @@ namespace ft {
 			iterator operator-(difference_type val) const { return iterator<T>(ptr - val);}
 			difference_type operator-(iterator const& rhs) const { return ptr - rhs.ptr;}
 
-
 			iterator operator+(difference_type val) const { return iterator<T>(ptr + val);}
 			difference_type operator+(iterator const& rhs) const { return ptr + rhs.ptr;}
 

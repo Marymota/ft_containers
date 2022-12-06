@@ -58,6 +58,8 @@ namespace ft {
 			random_access_iterator operator--() { --ptr; return *this; }
 			random_access_iterator operator--(int) { random_access_iterator it(*this); --ptr; return it; }
 			reference operator*() const { return *ptr; }
+			reference operator->() const { return *ptr; }
+			reference operator[] (difference_type n) const { return ptr + n; }
 
 	};
 }
