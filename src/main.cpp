@@ -115,19 +115,19 @@
 // 	return (0);
 // }
 
-// void vector() {
-// 	ft::vector<int> first;
-// 	ft::vector<int> second (4,100);
-// //	ft::vector<int> third (second.begin(), second.end());
-// 	//ft::vector<int> fourth (third); // segfault
-// 
-// 	int myints[] = {16, 2, 77, 29};
-// 	ft::vector<int> fifth (myints, myints + sizeof(myints) / sizeof(int));
-// 	std::cout << "The contents of fifth are:";
-// 	for (ft::vector<int>::iterator it = fifth.begin(); it != fifth.end(); ++it)
-// 		std::cout << ' ' << *it;
-// 	std::cout << '\n';
-// }
+ void vector() {
+ 	ft::vector<int> first;
+ 	ft::vector<int> second (4,100);
+ 	ft::vector<int> third (second.begin(), second.end());
+ 	ft::vector<int> fourth (third); // segfault
+ 
+ 	int myints[] = {16, 2, 77, 29};
+ 	ft::vector<int> fifth (myints, myints + sizeof(myints) / sizeof(int));
+ 	std::cout << "The contents of fifth are:";
+ 	for (ft::vector<int>::iterator it = fifth.begin(); it != fifth.end(); ++it)
+ 		std::cout << ' ' << *it;
+ 	std::cout << '\n';
+ }
 
 void stack_operators() {
 	ft::stack<int> st;
@@ -143,42 +143,48 @@ void stack_operators() {
 
 	if (st == st1)
 		std::cout << "Both stacks are equal" << std::endl;
-//
-//	if (st <= st1)
-//		std::cout << "stack is less or equal than stack1" << std::endl;
-//	else if (st >= st1)
-//		std::cout << "stack is more or equal than stack1" << std::endl;
-//
-//	st1.pop();
-//
-//	if (st <= st1)
-//		std::cout << "stack is less or equal than stack" << std::endl;
-//	else if (st >= st1)
-//		std::cout << "stack is more or equal than stack1" << std::endl;
-//	
-//	st1.top() = 5;
-//
-//	if (st <= st1)
-//		std::cout << "stack is less or equal than stack1" << std::endl;
-//	else if (st >= st1)
-//		std::cout << "stack is more or equal than stack1" << std::endl;
-//
-//	if (st != st1)
-//		std::cout << "Both stacks are not equal" << std::endl;
-//	
-//	std::cout << "Stack: ";
-//	while (!st.empty()) {
-//		std::cout << st.top() << ' ';
-//		st.pop();
-//	}
-//	std::cout << std::endl;
-//
-//	std::cout << "Stack1: ";
-//	while (!st1.empty()) {
-//		std::cout << st1.top() << ' ';
-//		st1.pop();
-//	}
-//	std::cout << std::endl;
+	std::cout << st.size() << std::endl;
+	std::cout << st1.size() << std::endl;
+
+	if (st <= st1)
+		std::cout << "stack is less or equal than stack1" << std::endl;
+	else if (st >= st1)
+		std::cout << "stack is more or equal than stack1" << std::endl;
+
+	st1.pop();
+	std::cout << st.size() << std::endl;
+	std::cout << st1.size() << std::endl;
+
+	if (st <= st1)
+		std::cout << "stack is less or equal than stack" << std::endl;
+	else if (st >= st1)
+		std::cout << "stack is more or equal than stack1" << std::endl;
+	
+	st1.top() = 5;
+	std::cout << st.size() << std::endl;
+	std::cout << st1.size() << std::endl;
+
+	if (st <= st1)
+		std::cout << "stack is less or equal than stack1" << std::endl;
+	else if (st >= st1)
+		std::cout << "stack is more or equal than stack1" << std::endl;
+
+	if (st != st1)
+		std::cout << "Both stacks are not equal" << std::endl;
+	
+	std::cout << "Stack: ";
+	while (!st.empty()) {
+		std::cout << st.top() << ' ';
+		st.pop();
+	}
+	std::cout << std::endl;
+
+	std::cout << "Stack1: ";
+	while (!st1.empty()) {
+		std::cout << st1.top() << ' ';
+		st1.pop();
+	}
+	std::cout << std::endl;
 }
 
 void stack() {
@@ -246,7 +252,7 @@ int main() {
 	stack(); 	// Print "3 2 4 77"
 //	test_vector();
 	stack_operators();
-//	vector();
+	vector();
 	return 0;
 }
 

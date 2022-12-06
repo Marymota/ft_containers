@@ -81,15 +81,22 @@ namespace ft {
 			vector (InputIterator first, InputIterator last,
 							const allocator_type& alloc = allocator_type()) :
 								_allocator(alloc),
-								_data(pointer()),
-								_size(last - first),
-								_capacity(size)
+								_data(0),
+								_size(0),
+								_capacity(0)
 			{
-				_data = _allocator.allocate(last - first);
-				std::uninitialized_copy(first, last, _data);
+				size_type n = last - first;
+				_data = _allocator.allocate(n);
+				_size	= std::uninitialized_copy(_data, _size, _data);
+				_capacity = _size;
 			}
 	
-			// COPY CONSTRUCTOR
+			/** COPY CONSTRUCTOR
+			 *	@details
+			 * 	Memory is allocated equal to the capacity of the original vector
+			 *	Elements of the original vector are copied to the new allocated space
+			 */ 
+
 			vector (const vector& x) {
 				_data = _allocator.allocate(x.capacity());
 				_size = std::uninitialized_copy(x.begin(), x.end(), _data);
@@ -118,7 +125,7 @@ namespace ft {
 			 * that had been used. However, if the two operands were the same object, then the 
 			 * right operand, the result would be that, when we freed the space held by the left 
 			 * operand, we would also have freed the space for the right-hand object. When create()
-			 * attempted to copy the elements from 'rhs', those elements would have been destroyed
+			 * attempted to copy the elements from 'y', those elements would have been destroyed
 			 * and the memory returned to the system.
 			*/
 		
@@ -269,27 +276,36 @@ namespace ft {
 			// Operator= : Assign content
 	template <class T, class Alloc> 
 	bool operator == (const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs) {
-		return lhs.size()	== rhs.size(); }
+		if (lhs.size() == rhs.size()) {
+			for(size_t i = 0; i < lhs.size(); i++) {
+				if (lhs[i] != rhs[i])
+					return false;
+			}
+			return true;
+		}
+		return false;
+	}
 
 	template <class T, class Alloc> 
 	bool operator != (const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs) {
-		return lhs	!=	rhs; }
-
+		return !(lhs	==	rhs); }
+	
+	// lexicographical_compare compares the elements sequentially (checking both a<b and b<a)
 	template <class T, class Alloc> 
 	bool operator <	(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs) { 
-		return lhs	<	rhs; }
+		return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()); }
 
 	template <class T, class Alloc> 
 	bool operator <=	(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs) { 
-		return lhs	<=	rhs; }
+		return !(lhs > rhs); }
 
 	template <class T, class Alloc> 
 	bool operator >	(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs) { 
-		return lhs	>	rhs; }
+		return rhs < lhs; }
 
 	template <class T, class Alloc> 
 	bool operator >=	(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs) { 
-		return lhs	>=	rhs; }
+		return !(lhs < rhs); }
 
 }
 
