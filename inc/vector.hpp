@@ -1,25 +1,26 @@
 #ifndef _VECTOR_HPP_
 #define _VECTOR_HPP_
 
-#include <algorithm>
 #include <iostream>
 #include <memory>		// add allocator<T>
 #include <cstddef> 	// add ptrdiff_t
-#include <algorithm>
 #include "iterator_traits.hpp"
 #include "random_access_iterator.hpp"
 
-
 /** @details The <memory> header provides a class, called allocator<T>, that allocates
- * a block of uninitialized memory that is intended to contain objects of type T, and
- * returns a pointer to the initial element of that memory. 
-*/
+ *	a block of uninitialized memory that is intended to contain objects of type T, and
+ *	returns a pointer to the initial element of that memory. 
+ *	@brief Vectors are sequence containers representing arrays that can change in size.
+ *	@container_properties:
+ *	->	Vectors are sequence containers that are ordered in a strict linear sequence.
+ *			Individual elements are accessed by their position in this sequence.
+ *	-> Vectors are dynamic arrays that allow direct access to any element in the sequence,
+ *			even through pointer arithmetics, and provides relatively fast addition/removal of
+ *			elements at the end of the sequence. 
+ *	-> A Vector container uses an allocator object to dynamically handle its storage needs.
+ *	@template_class: We want to allow users to use vector to hold a variety of types.
+ */
 
-
-/**
- * @brief Vectors are sequence containers representing arrays that can change in size
- * Template class: We want to allow users to use vector to hold a variety of types.
-*/
 namespace ft {
 
 	// Container definition
@@ -28,20 +29,20 @@ namespace ft {
 
 		public: // interface
 
-//		Definition																						Member type
-			typedef	T																							value_type;
-			typedef Alloc																					allocator_type;
-			typedef typename Alloc::pointer												pointer;
-			typedef typename Alloc::reference											reference;
-			typedef typename Alloc::const_pointer									const_pointer;
-			typedef typename Alloc::const_reference 							const_reference;
-			typedef typename Alloc::difference_type								difference_type;
-			typedef	typename Alloc::size_type											size_type;
-
-			typedef	ft::random_access_iterator<value_type>				iterator;
-			typedef	ft::random_access_iterator<const value_type>	const_iterator;
-			typedef std::reverse_iterator<iterator>								reverse_iterator;
-			typedef std::reverse_iterator<const_iterator>					const_reverse_iterator;
+//		MEMBER TYPES
+//		Definition																									Member type				notes
+			typedef	T																										value_type;				
+			typedef Alloc																								allocator_type;		//allocator<value_type>
+			typedef typename allocator_type::reference									reference;				//allocator: value_type&
+			typedef typename allocator_type::const_reference 						const_reference;	//allocator: const value_type&
+			typedef typename allocator_type::pointer										pointer;					//allocator: value_type*
+			typedef typename allocator_type::const_pointer							const_pointer;		//allocator: const value_type*
+			typedef	ft::random_access_iterator<value_type>							iterator;
+			typedef	ft::random_access_iterator<const value_type>				const_iterator;
+			typedef std::reverse_iterator<iterator>											reverse_iterator;
+			typedef std::reverse_iterator<const_iterator>								const_reverse_iterator;
+			typedef typename iterator_traits<iterator>::difference_type	difference_type;	//signed integral type: ptrdiff_t		
+			typedef	size_t																							size_type;				//unsigned integral type: difference_type
 
 		protected: // implementation
 			allocator_type	_allocator;				//	Allocator object
@@ -65,15 +66,21 @@ namespace ft {
 			{}
 
 			// FILL CONSTRUCTOR
+			/** @uninitialized_fill: Constructs all the elements in the range (first, last)
+					initializing them to the value of 'val'
+				*/
+			
 			explicit
-			vector (size_t n, const value_type& val = value_type(), 
-							const allocator_type& alloc= allocator_type()) : _allocator(alloc)
+			vector (size_type n, const value_type& val = value_type(), 
+							const allocator_type& alloc= allocator_type()) : 
+				_allocator(alloc),
+				_size(n),
+				_capacity(n)
 			{
-				_data = alloc(n);
-				_capacity = _size = _data + n;
-				// Constructs all the elements in the range (first, last)
-				// initializing them to the value of 'val'
-				uninitialized_fill(_data, _capacity, val);
+				_data = _allocator.allocate(n);
+				for (size_type i = 0; i < n; i++) {
+					_allocator.construct(_data + i, val);
+				}
 			}
 
 			// RANGE CONSTRUCTOR
@@ -85,10 +92,14 @@ namespace ft {
 								_size(0),
 								_capacity(0)
 			{
-				size_type n = last - first;
+				difference_type n = last - first;
 				_data = _allocator.allocate(n);
-				_size	= std::uninitialized_copy(_data, _size, _data);
-				_capacity = _size;
+				_capacity = _data + n;
+				_size = _data;
+				while (n--) {
+					_allocator.construct(_size, *first++);
+					_size++;
+				}
 			}
 	
 			/** COPY CONSTRUCTOR
@@ -105,10 +116,10 @@ namespace ft {
 
 		// DESTRUCTOR
 			~vector() {
-				for (pointer i = _data; i != _size; i++)
+				for (pointer i = 0; i != _size; i++)
 					_allocator.destroy(i); // void destroy (pointer p);
-				int n = _capacity - _data;
-				_allocator.deallocate(_data, n); //	void deallocate (pointer p, size_type n);
+				if (_capacity)
+					_allocator.deallocate(_data, _data - _capacity); //	void deallocate (pointer p, size_type n);
 			}
 
 			/**
@@ -306,7 +317,6 @@ namespace ft {
 	template <class T, class Alloc> 
 	bool operator >=	(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs) { 
 		return !(lhs < rhs); }
-
 }
 
 #endif

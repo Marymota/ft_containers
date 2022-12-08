@@ -115,19 +115,20 @@
 // 	return (0);
 // }
 
- void vector() {
- 	ft::vector<int> first;
- 	ft::vector<int> second (4,100);
- 	ft::vector<int> third (second.begin(), second.end());
- 	ft::vector<int> fourth (third); // segfault
+	void vector() {
+		ft::vector<int> first; // default constructor
+		ft::vector<int> second (4,100);	// fill constructor
+		ft::vector<int> third (second.begin(), second.end());
+		ft::vector<int> fourth (third); 
  
- 	int myints[] = {16, 2, 77, 29};
- 	ft::vector<int> fifth (myints, myints + sizeof(myints) / sizeof(int));
- 	std::cout << "The contents of fifth are:";
- 	for (ft::vector<int>::iterator it = fifth.begin(); it != fifth.end(); ++it)
- 		std::cout << ' ' << *it;
- 	std::cout << '\n';
- }
+ 		int myints[] = {16, 2, 77, 29};
+ 		ft::vector<int> fifth (myints, myints + sizeof(myints) / sizeof(int));
+ 		std::cout << "The contents of fifth are:";
+ 		for (ft::vector<int>::iterator it = fifth.begin(); it != fifth.end(); ++it)
+ 			std::cout << ' ' << *it;
+ 		std::cout << '\n';
+			std::cout << second[0] << std::endl;
+}
 
 void stack_operators() {
 	ft::stack<int> st;
@@ -249,10 +250,10 @@ void test_vector() {
 }
 
 int main() {
-	stack(); 	// Print "3 2 4 77"
+//	stack(); 	// Print "3 2 4 77"
 //	test_vector();
-	stack_operators();
-	vector();
+//	stack_operators();
+		vector();
 	return 0;
 }
 

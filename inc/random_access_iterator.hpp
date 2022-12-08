@@ -49,7 +49,6 @@ namespace ft {
 			random_access_iterator operator-(difference_type val) const { return random_access_iterator<T>(ptr - val);}
 			difference_type operator-(random_access_iterator const& rhs) const { return ptr - rhs.ptr;}
 
-
 			random_access_iterator operator+(difference_type val) const { return random_access_iterator<T>(ptr + val);}
 			difference_type operator+(random_access_iterator const& rhs) const { return ptr + rhs.ptr;}
 
