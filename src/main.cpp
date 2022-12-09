@@ -115,19 +115,44 @@
 // 	return (0);
 // }
 
-	void vector() {
-		ft::vector<int> first; // default constructor
-		ft::vector<int> second (4,100);	// fill constructor
-		ft::vector<int> third (second.begin(), second.end());
-		ft::vector<int> fourth (third); 
- 
- 		int myints[] = {16, 2, 77, 29};
- 		ft::vector<int> fifth (myints, myints + sizeof(myints) / sizeof(int));
- 		std::cout << "The contents of fifth are:";
- 		for (ft::vector<int>::iterator it = fifth.begin(); it != fifth.end(); ++it)
- 			std::cout << ' ' << *it;
+	void vector_begin_end() {
+		ft::vector<int> myvector;
+		for (int i = 1; i <= 5; i++) myvector.push_back(i);
+
+		std::cout << "myvector contains:";
+		for (ft::vector<int>::iterator it = myvector.begin(); it != myvector.end(); ++it)
+			std::cout << ' ' << *it;
+		std::cout << '\n';
+	}
+
+	void vector_assignment() {
+		ft::vector<int> foo (3,0);
+		ft::vector<int> bar (5,0);
+
+		bar = foo;
+		foo = ft::vector<int>();
+
+		std::cout << "Size of foo: " << int(foo.size()) << '\n';
+		std::cout << "Size of bar: " << int(bar.size()) << '\n';
+	}
+
+	void construct_vector() { // cplusplus.com/reference/vector/vector/vector/
+		ft::vector<int> first; 																// empty vector of ints
+		ft::vector<int> second (4,100);												// four ints with value 100
+		std::cout << "The contents of second are:";
+		for (ft::vector<int>::iterator it = second.begin(); it != second.end(); ++it) {
+			std::cout << ' ' << *it;
+		}
+//		ft::vector<int> third (second.begin(), second.end()); // iterating through second
+//		ft::vector<int> fourth (third); 											// a copy of third
+// 
+//		// the iterator constructor can also be used to construct from arrays:
+// 		int myints[] = {16, 2, 77, 29};
+// 		ft::vector<int> fifth (myints, myints + sizeof(myints) / sizeof(int));
+// 		std::cout << "The contents of fifth are:";
+// 		for (ft::vector<int>::iterator it = fifth.begin(); it != fifth.end(); ++it)
+// 			std::cout << ' ' << *it;
  		std::cout << '\n';
-			std::cout << second[0] << std::endl;
 }
 
 void stack_operators() {
@@ -250,10 +275,14 @@ void test_vector() {
 }
 
 int main() {
-//	stack(); 	// Print "3 2 4 77"
-//	test_vector();
-//	stack_operators();
-		vector();
+	//	stack(); 	// Print "3 2 4 77"
+	//	stack_operators();
+
+	// 	VECTOR
+	//	test_vector();
+	//	construct_vector();
+	//	vector_assignment();
+		vector_begin_end();
 	return 0;
 }
 

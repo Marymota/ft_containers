@@ -65,49 +65,30 @@ namespace ft {
 				_capacity(0)
 			{}
 
-			// FILL CONSTRUCTOR
-			/** @uninitialized_fill: Constructs all the elements in the range (first, last)
+			/** FILL CONSTRUCTOR
+					@uninitialized_fill: Constructs all the elements in the range (first, last)
 					initializing them to the value of 'val'
 				*/
-			
 			explicit
 			vector (size_type n, const value_type& val = value_type(), 
-							const allocator_type& alloc= allocator_type()) : 
-				_allocator(alloc),
-				_size(n),
-				_capacity(n)
+							const allocator_type& alloc= allocator_type()) : _allocator(alloc)
 			{
 				_data = _allocator.allocate(n);
-				for (size_type i = 0; i < n; i++) {
-					_allocator.construct(_data + i, val);
-				}
-			}
-
-			// RANGE CONSTRUCTOR
-			template <class InputIterator>
-			vector (InputIterator first, InputIterator last,
-							const allocator_type& alloc = allocator_type()) :
-								_allocator(alloc),
-								_data(0),
-								_size(0),
-								_capacity(0)
-			{
-				difference_type n = last - first;
-				_data = _allocator.allocate(n);
-				_capacity = _data + n;
 				_size = _data;
+				_capacity = _data + n;
 				while (n--) {
-					_allocator.construct(_size, *first++);
+					_allocator.construct(_size, val);
 					_size++;
 				}
 			}
-	
+			// RANGE CONSTRUCTOR
+
+
 			/** COPY CONSTRUCTOR
 			 *	@details
 			 * 	Memory is allocated equal to the capacity of the original vector
 			 *	Elements of the original vector are copied to the new allocated space
 			 */ 
-
 			vector (const vector& x) {
 				_data = _allocator.allocate(x.capacity());
 				_size = std::uninitialized_copy(x.begin(), x.end(), _data);
@@ -116,10 +97,13 @@ namespace ft {
 
 		// DESTRUCTOR
 			~vector() {
-				for (pointer i = 0; i != _size; i++)
-					_allocator.destroy(i); // void destroy (pointer p);
+				size_type save_size = size();
+				/** @why: pointer i != _size don't work */
+				for (size_type i = 0; i < save_size; i++){ 
+					_size--;
+				}
 				if (_capacity)
-					_allocator.deallocate(_data, _data - _capacity); //	void deallocate (pointer p, size_type n);
+					_allocator.deallocate(_data, capacity()); //	void deallocate (pointer p, size_type n);
 			}
 
 			/**
@@ -173,17 +157,34 @@ namespace ft {
 			const_reference back() const { return *(end() - 1); }	
 			// data: 					Access data
 
-			// MODIFIERS
-			// assign: 				Assign vector content
+			//	MODIFIERS
+			/** @assign:	Assigns new contents to the vector replacing its current contents
+			 *						and modifying its size accordingly. 
+			 */
+			// range
+					//template <class InputIterator>
+					//void assign (InputIterator first, InputIterator last,
+					/** @why: Understand the necessity of using enable_if and is_integral
+					//typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = u_nullptr) */
+					//{
+						// In the range version, the new contents are elements constructed from each of the
+						// elements in the range between first and last, in the same order.
+					//}
+			// fill
+			//	void assign (size_type n, const value_type& val){
+					// In the fill version the new contents are n elements, each initializer to a copy of val.
+			//	}
+				
 
-			/**	@push_back: Add element at the end
+			/*	@push_back: Add element at the end
 			 * 	If the storage capacity of the vector is not almost full 
 			 *	(-1 from full capacity) a new object (val) is constructed
 			 *	after the last element and the number of elements (size)
 			 *	is incremented by one.
 			 *	If the storage capacity of the vector is almost full its
 			 *	necessary to extend the vector.
-			 */ 
+			 */
+			
 			void push_back(const value_type& val){
 				if (_size != _capacity) {
 					_allocator.construct(_size, val); //void construct ( pointer p, const_reference val );
@@ -287,14 +288,13 @@ namespace ft {
 			// Operator= : Assign content
 	template <class T, class Alloc> 
 	bool operator == (const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs) {
-		if (lhs.size() == rhs.size()) {
-			for(size_t i = 0; i < lhs.size(); i++) {
+		if (lhs.size() != rhs.size())
+			return false;
+		for(size_t i = 0; i < lhs.size(); i++) {
 				if (lhs[i] != rhs[i])
 					return false;
 			}
 			return true;
-		}
-		return false;
 	}
 
 	template <class T, class Alloc> 

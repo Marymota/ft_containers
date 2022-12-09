@@ -59,7 +59,6 @@ namespace ft {
 			reference operator*() const { return *ptr; }
 			reference operator->() const { return *ptr; }
 			reference operator[] (difference_type n) const { return ptr + n; }
-
 	};
 }
 
