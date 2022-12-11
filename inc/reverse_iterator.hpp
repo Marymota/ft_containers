@@ -60,8 +60,8 @@ namespace ft
 			// Advances or decrements the iterator
 			reverse_iterator	operator++() { --_iter; return *this; }
 			reverse_iterator	operator--() { ++_iter; return *this; }
-			reverse_iterator	operator++(int) { reverse_iterator iter_copy(*this); ++_iter; return iter_copy; }
-			reverse_iterator	operator--(int) { reverse_iterator iter_copy(*this); --_iter; return iter_copy; }
+			reverse_iterator	operator++(int) { reverse_iterator iter_copy(*this); --_iter; return iter_copy; }
+			reverse_iterator	operator--(int) { reverse_iterator iter_copy(*this); ++_iter; return iter_copy; }
 			reverse_iterator 	operator-(difference_type n) const { return reverse_iterator(_iter + n);}
 			reverse_iterator 	operator+(difference_type n) const { return reverse_iterator(_iter - n);}
 			reverse_iterator& operator-=(difference_type n) const { _iter += n; return *this; }
@@ -75,9 +75,9 @@ namespace ft
 										const ft::reverse_iterator<Iterator2>& rhs )
 	{	return lhs.base() == rhs.base(); }
 
-	template< class Iterator1, class Iterator2>
-	bool operator!=(	const ft::reverse_iterator<Iterator1>& lhs,
-										const ft::reverse_iterator<Iterator2>& rhs )
+	template< class Iterator>
+	bool operator!=(	const ft::reverse_iterator<Iterator>& lhs,
+										const ft::reverse_iterator<Iterator>& rhs )
 	{	return lhs.base() != rhs.base(); }
 
 	template< class Iterator1, class Iterator2>

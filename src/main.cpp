@@ -116,32 +116,23 @@
 // }
 
 	void vector_reverse_iterator() {
-//		ft::vector<int> myvector;
-//		for (int i=0; i<10; i++) myvector.push_back(i);
-//
-//		typedef ft::vector<int>::iterator iter_type;
-//
-//		iter_type from (myvector.begin());
-//		iter_type until (myvector.end());
-//
-//		ft::reverse_iterator<iter_type> rev_until (from);
-//		ft::reverse_iterator<iter_type> rev_from	(until);
-//
-//		std::cout << "reverse iterator vector:";
-//		while (rev_from != rev_until)
-//			std::cout << ' ' << *rev_from++;
-//		std::cout << '\n';
-			ft::vector<int> myvector (5);
+		ft::vector<int> myvector;
+		for (int i=0; i<10; i++) myvector.push_back(i);
 
-			int i = 0;
-			ft::vector<int>::reverse_iterator rit = myvector.rbegin();
-			for(; rit != myvector.rend(); ++rit)
-				*rit = ++i;
-			
-			std::cout << "myvector contains:";
-			for (ft::vector<int>::iterator it = myvector.begin(); it != myvector.end(); ++it)
-				std::cout << ' ' << *it;
-			std::cout << '\n';
+		typedef ft::vector<int>::iterator iter_type;
+
+		iter_type from (myvector.begin());
+		iter_type until (myvector.end());
+
+		ft::reverse_iterator<iter_type> rev_until (from);
+		ft::reverse_iterator<iter_type> rev_from	(until);
+
+		std::cout << "reverse iterator vector:";
+		while (rev_from != rev_until)
+			std::cout << ' ' << *rev_from++;
+		std::cout << '\n';
+
+
 	}
 
 	void vector_begin_end() {
