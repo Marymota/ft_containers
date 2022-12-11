@@ -1,15 +1,15 @@
 #include <iostream>
 #include <string>
-//#if 1 //CREATE A REAL STL EXAMPLE
-//	#include <map>
-//	#include <stack>
-//	#include <vector>
-//	namespace ft = std;
-//#else
+#if 0 //CREATE A REAL STL EXAMPLE
+	#include <map>
+	#include <stack>
+	#include <vector>
+	namespace ft = std;
+#else
 //	#include <../inc/map.hpp>
 	#include "../inc/stack.hpp"
 	#include "../inc/vector.hpp"
-//#endif
+#endif
 
 // #include <stdlib.h>
 // 
@@ -114,6 +114,35 @@
 // 	std::cout << std::endl;
 // 	return (0);
 // }
+
+	void vector_reverse_iterator() {
+//		ft::vector<int> myvector;
+//		for (int i=0; i<10; i++) myvector.push_back(i);
+//
+//		typedef ft::vector<int>::iterator iter_type;
+//
+//		iter_type from (myvector.begin());
+//		iter_type until (myvector.end());
+//
+//		ft::reverse_iterator<iter_type> rev_until (from);
+//		ft::reverse_iterator<iter_type> rev_from	(until);
+//
+//		std::cout << "reverse iterator vector:";
+//		while (rev_from != rev_until)
+//			std::cout << ' ' << *rev_from++;
+//		std::cout << '\n';
+			ft::vector<int> myvector (5);
+
+			int i = 0;
+			ft::vector<int>::reverse_iterator rit = myvector.rbegin();
+			for(; rit != myvector.rend(); ++rit)
+				*rit = ++i;
+			
+			std::cout << "myvector contains:";
+			for (ft::vector<int>::iterator it = myvector.begin(); it != myvector.end(); ++it)
+				std::cout << ' ' << *it;
+			std::cout << '\n';
+	}
 
 	void vector_begin_end() {
 		ft::vector<int> myvector;
@@ -282,7 +311,8 @@ int main() {
 	//	test_vector();
 	//	construct_vector();
 	//	vector_assignment();
-		vector_begin_end();
+	//	vector_begin_end();
+		vector_reverse_iterator();
 	return 0;
 }
 

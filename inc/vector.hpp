@@ -4,7 +4,7 @@
 #include <iostream>
 #include <memory>		// add allocator<T>
 #include <cstddef> 	// add ptrdiff_t
-#include "iterator_traits.hpp"
+#include "reverse_iterator.hpp"
 #include "random_access_iterator.hpp"
 
 /** @details The <memory> header provides a class, called allocator<T>, that allocates
@@ -39,8 +39,8 @@ namespace ft {
 			typedef typename allocator_type::const_pointer							const_pointer;		//allocator: const value_type*
 			typedef	ft::random_access_iterator<value_type>							iterator;
 			typedef	ft::random_access_iterator<const value_type>				const_iterator;
-			typedef std::reverse_iterator<iterator>											reverse_iterator;
-			typedef std::reverse_iterator<const_iterator>								const_reverse_iterator;
+			typedef ft::reverse_iterator<iterator>											reverse_iterator;
+			typedef ft::reverse_iterator<const_iterator>								const_reverse_iterator;
 			typedef typename iterator_traits<iterator>::difference_type	difference_type;	//signed integral type: ptrdiff_t		
 			typedef	size_t																							size_type;				//unsigned integral type: difference_type
 
@@ -129,12 +129,12 @@ namespace ft {
 			const_iterator begin() const{						return const_iterator(_data);}						
 			iterator end(){													return iterator(_size);}									
 			const_iterator end() const{							return const_iterator(_size);}						
-			reverse_iterator rbegin(){							return reverse_iterator(end());}				
+			reverse_iterator rbegin(){							return reverse_iterator(end()); }				
 			const_reverse_iterator rbegin() const{ 	return const_reverse_iterator(end());}	
 			reverse_iterator rend(){								return reverse_iterator(begin());}			
 			const_reverse_iterator rend() const{		return const_reverse_iterator(begin());}
-			const_iterator cbegin() const{					return const_iterator(begin());}				
-			const_iterator cend() const{						return const_iterator(end());}						
+			const_iterator cbegin() const{					return const_iterator(_data);}				
+			const_iterator cend() const{						return const_iterator(_size);}						
 			const_reverse_iterator crbegin() const{	return const_reverse_iterator(end());}	
 			const_reverse_iterator crend() const{		return const_reverse_iterator(begin());}
 
