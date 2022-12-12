@@ -131,8 +131,6 @@
 		while (rev_from != rev_until)
 			std::cout << ' ' << *rev_from++;
 		std::cout << '\n';
-
-
 	}
 
 	void vector_begin_end() {
@@ -163,15 +161,15 @@
 		for (ft::vector<int>::iterator it = second.begin(); it != second.end(); ++it) {
 			std::cout << ' ' << *it;
 		}
-//		ft::vector<int> third (second.begin(), second.end()); // iterating through second
-//		ft::vector<int> fourth (third); 											// a copy of third
-// 
-//		// the iterator constructor can also be used to construct from arrays:
-// 		int myints[] = {16, 2, 77, 29};
-// 		ft::vector<int> fifth (myints, myints + sizeof(myints) / sizeof(int));
-// 		std::cout << "The contents of fifth are:";
-// 		for (ft::vector<int>::iterator it = fifth.begin(); it != fifth.end(); ++it)
-// 			std::cout << ' ' << *it;
+		ft::vector<int> third (second.begin(), second.end()); // iterating through second
+		ft::vector<int> fourth (third); 											// a copy of third
+ 
+		// the iterator constructor can also be used to construct from arrays:
+ 		int myints[] = {16, 2, 77, 29};
+ 		ft::vector<int> fifth (myints, myints + sizeof(myints) / sizeof(int));
+ 		std::cout << "The contents of fifth are:";
+ 		for (ft::vector<int>::iterator it = fifth.begin(); it != fifth.end(); ++it)
+ 			std::cout << ' ' << *it;
  		std::cout << '\n';
 }
 
@@ -300,10 +298,10 @@ int main() {
 
 	// 	VECTOR
 	//	test_vector();
-	//	construct_vector();
+			construct_vector();
 	//	vector_assignment();
 	//	vector_begin_end();
-		vector_reverse_iterator();
+	//	vector_reverse_iterator();
+	
 	return 0;
 }
-

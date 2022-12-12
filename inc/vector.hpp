@@ -2,10 +2,12 @@
 #define _VECTOR_HPP_
 
 #include <iostream>
+#include <iterator>
 #include <memory>		// add allocator<T>
 #include <cstddef> 	// add ptrdiff_t
 #include "reverse_iterator.hpp"
 #include "random_access_iterator.hpp"
+#include "type_traits.hpp"
 
 /** @details The <memory> header provides a class, called allocator<T>, that allocates
  *	a block of uninitialized memory that is intended to contain objects of type T, and
@@ -47,7 +49,7 @@ namespace ft {
 		protected: // implementation
 			allocator_type	_allocator;				//	Allocator object
 			pointer					_data;						//	First element
-			pointer 				_size;						//	Last element in the vector 
+			pointer 				_finish;						//	Last element in the vector 
 			pointer					_capacity;				//	Las allocated piece of memory
 
 		public:
@@ -60,9 +62,9 @@ namespace ft {
 			explicit
 			vector (const allocator_type& alloc = allocator_type()) :
 				_allocator(alloc),
-				_data(0),
-				_size(0),
-				_capacity(0)
+				_data(),
+				_finish(),
+				_capacity()
 			{}
 
 			/** FILL CONSTRUCTOR
@@ -74,15 +76,45 @@ namespace ft {
 							const allocator_type& alloc= allocator_type()) : _allocator(alloc)
 			{
 				_data = _allocator.allocate(n);
-				_size = _data;
+				_finish = _data;
 				_capacity = _data + n;
-				while (n--) {
-					_allocator.construct(_size, val);
-					_size++;
+
+				for(; n > 0; --n, _finish++) {
+					_allocator.construct(_finish, val);
 				}
 			}
+			
 			// RANGE CONSTRUCTOR
+			/** @brief Given the distance between first and last as N,
+			 *		if first and last are both forward, bidirectional or random-access iterators,
+			 * 			the copy constructor of T is only called N times, and
+			 * 			no reallocation occurs.
+			 * 		otherwise (first and last are just input iterators),
+			 * 			the copy constructor of T is called O(N) times, and
+			 * 			reallocation occurs O(log N) times.
+			 * 
+			 *	This constructor has the same effect as:
+			 *	vector(static_cast<size_type>(first), static_cast<value_type>(last), a)
+			 *	if Input_Iterator is an integral type
+			 *
+			 */
 
+			template <typename InputIterator>								
+			vector(	InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(),
+							typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL) :
+				_allocator(alloc),
+				_data(0),
+				_finish(0),
+				_capacity(0)
+			{
+				const size_type n = std::distance(first, last);
+				_data = _allocator.allocate(n);
+				_finish = _data;
+				_capacity = _data + n;
+
+				for(; first != last; ++first, _finish++)
+					_allocator.construct(_finish, *first);
+			}
 
 			/** COPY CONSTRUCTOR
 			 *	@details
@@ -91,16 +123,16 @@ namespace ft {
 			 */ 
 			vector (const vector& x) {
 				_data = _allocator.allocate(x.capacity());
-				_size = std::uninitialized_copy(x.begin(), x.end(), _data);
-				_capacity = _size;
+				_finish = std::uninitialized_copy(x.begin(), x.end(), _data);
+				_capacity = _finish;
 			}
 
 		// DESTRUCTOR
 			~vector() {
-				size_type save_size = size();
-				/** @why: pointer i != _size don't work */
-				for (size_type i = 0; i < save_size; i++){ 
-					_size--;
+				size_type save_finish = size();
+				/** @why: pointer i != _finish don't work */
+				for (size_type i = 0; i < save_finish; i++){ 
+					_finish--;
 				}
 				if (_capacity)
 					_allocator.deallocate(_data, capacity()); //	void deallocate (pointer p, size_type n);
@@ -127,20 +159,20 @@ namespace ft {
 			//	ITERATORS
 			iterator begin(){ 											return iterator(_data);} 	
 			const_iterator begin() const{						return const_iterator(_data);}						
-			iterator end(){													return iterator(_size);}									
-			const_iterator end() const{							return const_iterator(_size);}						
+			iterator end(){													return iterator(_finish);}									
+			const_iterator end() const{							return const_iterator(_finish);}						
 			reverse_iterator rbegin(){							return reverse_iterator(end()); }				
 			const_reverse_iterator rbegin() const{ 	return const_reverse_iterator(end());}	
 			reverse_iterator rend(){								return reverse_iterator(begin());}			
 			const_reverse_iterator rend() const{		return const_reverse_iterator(begin());}
 			const_iterator cbegin() const{					return const_iterator(_data);}				
-			const_iterator cend() const{						return const_iterator(_size);}						
+			const_iterator cend() const{						return const_iterator(_finish);}						
 			const_reverse_iterator crbegin() const{	return const_reverse_iterator(end());}	
 			const_reverse_iterator crend() const{		return const_reverse_iterator(begin());}
 
 			// CAPACITY
-			size_type size() const {			return _size - _data; }
-			size_type max_size() const { 	return _capacity; } //?
+			size_type size() const {			return _finish - _data; }
+			size_type max_finish() const { 	return _capacity; } //?
 			// resize
 			size_type capacity() const { 	return _capacity - _data; }
 			bool empty() const { 					return (begin() == end()); }
@@ -186,9 +218,9 @@ namespace ft {
 			 */
 			
 			void push_back(const value_type& val){
-				if (_size != _capacity) {
-					_allocator.construct(_size, val); //void construct ( pointer p, const_reference val );
-					_size++;
+				if (_finish != _capacity) {
+					_allocator.construct(_finish, val); //void construct ( pointer p, const_reference val );
+					_finish++;
 				}
 				else
 					insert_aux(end(), val);
@@ -197,15 +229,15 @@ namespace ft {
 			// pop_back:			Delete last element
 			void pop_back() {
 				_allocator.destroy(_data - 1);
-				_size--;
+				_finish--;
 			}
 
 			// single element
 			iterator insert (iterator position, const T& val) {
 				size_type n = position - begin();
-				if (_size != _capacity && position != end()) {
-					_allocator.construct(_size, val); //void construct ( pointer p, const_reference val );
-					_size++;
+				if (_finish != _capacity && position != end()) {
+					_allocator.construct(_finish, val); //void construct ( pointer p, const_reference val );
+					_finish++;
 				}
 				else {
 					insert_aux(position, val);
@@ -227,14 +259,14 @@ namespace ft {
 			 */ 
 
 			void insert_aux (iterator position, const value_type& val) {
-				if (_size != _capacity) {
+				if (_finish != _capacity) {
 					std::uninitialized_copy(position, end() - 1, (position + 1));
 					_allocator.construct(&(*position), val);
-					_size++;
+					_finish++;
 				}
 				else { // No free space
-					const size_type old_size = size();
-					const size_type len = old_size != 0 ? 2 * old_size : 1; 							// if _size != 0 double it
+					const size_type old_finish = size();
+					const size_type len = old_finish != 0 ? 2 * old_finish : 1; 							// if _finish != 0 double it
 					pointer new_start = _allocator.allocate(len); 
 					pointer new_finish = new_start;
 					try {
@@ -250,12 +282,12 @@ namespace ft {
 						_allocator.deallocate(new_start, len);
 						throw;
 					}
-					for (pointer i = _data; i != _size; i++)
+					for (pointer i = _data; i != _finish; i++)
 						_allocator.destroy(i); 					// Destroy old vector data 
 					int n = _capacity - _data;
 					_allocator.deallocate(_data, n);	//	Deallocate old vector data 
 					_data = new_start;								//	Redirect pointers to new vector		
-					_size = new_finish;
+					_finish = new_finish;
 					_capacity = _data + len;
 				}
 			}
