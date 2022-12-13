@@ -2,12 +2,14 @@
 #define _VECTOR_HPP_
 
 #include <iostream>
-#include <iterator>
 #include <memory>		// add allocator<T>
 #include <cstddef> 	// add ptrdiff_t
 #include "reverse_iterator.hpp"
 #include "random_access_iterator.hpp"
 #include "type_traits.hpp"
+#include "iterator_traits.hpp"
+#include "memory.hpp"
+#include "iterator.hpp"
 
 /** @details The <memory> header provides a class, called allocator<T>, that allocates
  *	a block of uninitialized memory that is intended to contain objects of type T, and
@@ -23,16 +25,22 @@
  *	@template_class: We want to allow users to use vector to hold a variety of types.
  */
 
+	 /*----------*/
+	/**	VECTOR: */
+ /*----------*/
+
 namespace ft {
+	//	Vector class template - container definition
+	template < class T, class Alloc = std::allocator<T> > // generic template
+	class vector {														
 
-	// Container definition
-	template <class T, class Alloc = std::allocator<T> > // generic template
-	class vector {
+		public:
+		
+	 /*----------------*/
+	/**	MEMBER:TYPES: */
+ /*----------------*/
 
-		public: // interface
-
-//		MEMBER TYPES
-//		Definition																									Member type				notes
+	//	Definition																									Member type				notes
 			typedef	T																										value_type;				
 			typedef Alloc																								allocator_type;		//allocator<value_type>
 			typedef typename allocator_type::reference									reference;				//allocator: value_type&
@@ -53,10 +61,13 @@ namespace ft {
 			pointer					_capacity;				//	Las allocated piece of memory
 
 		public:
-		/********************************************************************
-		 * 													MEMBER FUNCTIONS												*
-		 ********************************************************************/
-		/*** Constructors ***/
+
+	  /**-------------------*/
+	 /** MEMBER:FUNCTIONS: */
+	/*--------------------*/
+
+	/***	(constructor)
+	 * 		Construct vector	***/
 
 			// DEFAULT CONSTRUCTOR
 			explicit
@@ -96,7 +107,6 @@ namespace ft {
 			 *	This constructor has the same effect as:
 			 *	vector(static_cast<size_type>(first), static_cast<value_type>(last), a)
 			 *	if Input_Iterator is an integral type
-			 *
 			 */
 
 			template <typename InputIterator>								
@@ -121,13 +131,14 @@ namespace ft {
 			 * 	Memory is allocated equal to the capacity of the original vector
 			 *	Elements of the original vector are copied to the new allocated space
 			 */ 
-			vector (const vector& x) {
-				_data = _allocator.allocate(x.capacity());
-				_finish = std::uninitialized_copy(x.begin(), x.end(), _data);
+			vector (const vector& other) {
+				_data = _allocator.allocate(other.capacity());
+				_finish = ft::uninitialized_copy(other.begin(), other.end(), _data);
 				_capacity = _finish;
 			}
 
-		// DESTRUCTOR
+/***	(destructor)
+ * 		Vector destructor	***/
 			~vector() {
 				size_type save_finish = size();
 				/** @why: pointer i != _finish don't work */
@@ -137,6 +148,16 @@ namespace ft {
 				if (_capacity)
 					_allocator.deallocate(_data, capacity()); //	void deallocate (pointer p, size_type n);
 			}
+
+/***	operator=
+ * 		Assign content	***/
+			vector& operator= (const vector& other) {
+				_data = other._data;
+				_finish = ft::uninitialized_copy(other.begin(), other.end(), _data);
+				_capacity = _finish;
+				return *this;
+			}
+
 
 			/**
 			 * @details We explicitly test for self-assignment by comparing the pointer
@@ -156,30 +177,53 @@ namespace ft {
 			 * and the memory returned to the system.
 			*/
 		
-			//	ITERATORS
-			iterator begin(){ 											return iterator(_data);} 	
-			const_iterator begin() const{						return const_iterator(_data);}						
-			iterator end(){													return iterator(_finish);}									
-			const_iterator end() const{							return const_iterator(_finish);}						
-			reverse_iterator rbegin(){							return reverse_iterator(end()); }				
-			const_reverse_iterator rbegin() const{ 	return const_reverse_iterator(end());}	
+	/** ITERATORS:	***/
+
+			iterator begin(){ 											return _data ;} 	
+			const_iterator begin() const{						return _data ;}						
+			iterator end(){													return _finish ;}									
+			const_iterator end() const{							return _finish ;}						
+			reverse_iterator rbegin(){							return reverse_iterator(end()) ;}	 				// end() of _finish? is it different?			
+			const_reverse_iterator rbegin() const{ 	return const_reverse_iterator(end()) ;}	
 			reverse_iterator rend(){								return reverse_iterator(begin());}			
-			const_reverse_iterator rend() const{		return const_reverse_iterator(begin());}
-			const_iterator cbegin() const{					return const_iterator(_data);}				
-			const_iterator cend() const{						return const_iterator(_finish);}						
-			const_reverse_iterator crbegin() const{	return const_reverse_iterator(end());}	
-			const_reverse_iterator crend() const{		return const_reverse_iterator(begin());}
+			const_reverse_iterator rend() const{		return const_reverse_iterator(begin()) ;}
 
-			// CAPACITY
-			size_type size() const {			return _finish - _data; }
-			size_type max_finish() const { 	return _capacity; } //?
-			// resize
-			size_type capacity() const { 	return _capacity - _data; }
-			bool empty() const { 					return (begin() == end()); }
-			// reserve: 			Request a change in capacity
-			// shrink_to_fit: Shrink to fit
 
-			// Element access
+	/** CAPACITY: */
+
+			bool empty() const { 					return (begin() == end()); } 						//checks whether the container is empty
+			size_type size() const {			return size_type(end() - begin()); } 		// returns the n of elements
+			size_type max_size() const { 	return size_type(-1) / sizeof(T); }			// returns the max posible n of elems 
+			
+			void reserve(size_type new_cap) { 																		// reservers storage if capacity is less than new_cap
+				if (capacity() < new_cap) {
+					pointer new_data = _allocator.allocate(new_cap); 
+					pointer new_finish = new_data;
+					try {
+						new_finish = ft::uninitialized_copy(begin(), end(), new_data); // copy from start of old vec to position
+					}
+					catch(...) {																											// If an error occurrs destroy the new allocated vector
+						for (pointer i = new_finish; i != new_data; i--) {
+							_allocator.destroy(i);
+						}
+						_allocator.deallocate(new_data, new_cap);
+						throw;
+					}
+					for (pointer i = _data; i != _finish; i++)
+						_allocator.destroy(i); 					// Destroy old vector data 
+					int n = _capacity - _data;
+					_allocator.deallocate(_data, n);	//	Deallocate old vector data 
+					_data = new_data;									//	Redirect pointers to new vector		
+					_finish = new_finish;
+					_capacity = _data + new_cap;
+				}
+			}
+			
+			size_type capacity() const { 	return size_type(_capacity - _data); } // returns n of elems that can be held in curr alloc storage
+
+
+	/** ELEMENT:ACCESS: */
+
 			reference operator[](size_type n) { 						return *(begin() + n );}
 			const_reference operator[](size_type n) const { return *(begin() + n );}
 			// at: 						Access element
@@ -189,7 +233,7 @@ namespace ft {
 			const_reference back() const { return *(end() - 1); }	
 			// data: 					Access data
 
-			//	MODIFIERS
+	/**	MODIFIERS: */
 			/** @assign:	Assigns new contents to the vector replacing its current contents
 			 *						and modifying its size accordingly. 
 			 */
@@ -239,11 +283,13 @@ namespace ft {
 					_allocator.construct(_finish, val); //void construct ( pointer p, const_reference val );
 					_finish++;
 				}
-				else {
+				else
 					insert_aux(position, val);
-				}
 				return _data + n;
 			}
+
+/** @insert_fill: void insert (iterator position, size_type n, const value_type& val);	*/
+/** @insert_range:	template <class InputIterator> void insert (iterator position, InputIterator first, InputIterator last); */
 
 			/**	@insert_aux:
 			 *	If size does not exceeds the capacity of the vector,
@@ -260,20 +306,20 @@ namespace ft {
 
 			void insert_aux (iterator position, const value_type& val) {
 				if (_finish != _capacity) {
-					std::uninitialized_copy(position, end() - 1, (position + 1));
+					ft::uninitialized_copy(position, end() - 1, (position + 1));
 					_allocator.construct(&(*position), val);
 					_finish++;
 				}
 				else { // No free space
 					const size_type old_finish = size();
-					const size_type len = old_finish != 0 ? 2 * old_finish : 1; 							// if _finish != 0 double it
+					const size_type len = old_finish != 0 ? 2 * old_finish : 1; 					// if _finish != 0 double it
 					pointer new_start = _allocator.allocate(len); 
 					pointer new_finish = new_start;
 					try {
-						new_finish = std::uninitialized_copy(begin(), position, new_start); // copy from start of old vec to position
+						new_finish = ft::uninitialized_copy(begin(), position, new_start); // copy from start of old vec to position
 						_allocator.construct(new_finish, val); 															// add new value to position in the new vec
 						++new_finish;
-						new_finish = std::uninitialized_copy(position, end(), new_finish);	// copy the rest of the old vector after position
+						new_finish = ft::uninitialized_copy(position, end(), new_finish);	// copy the rest of the old vector after position
 					}
 					catch(...) {																													// If an error occurrs destroy the new allocated vector
 						for (pointer i = new_finish; i != new_start; i--) {
@@ -291,29 +337,57 @@ namespace ft {
 					_capacity = _data + len;
 				}
 			}
-//
-//			// range
-//			template <class InputIterator>
-//			void insert (iterator position, InputIterator first, InputIterator last);
 			
-			// erase:					Erase elements
+			/** @brief:
+			 * If the position given is not the last element of the vector
+			 * we copy all the elements from position to the last element
+			 * The size (_finish iterator) is reduced and the last element is deleted
+			 * Position is returned as the element after the one it was erased
+			 */
+			iterator erase (iterator position) {
+				if (position + 1 != end())
+					ft::uninitialized_copy(position + 1, end(), position);
+				--_finish;
+				_allocator.destroy(_finish);
+				return position;
+			}
+
+			/** @brief:
+			 * The function recieves an iterator to the start and end
+			 * of a range of elements to be erased copy all elements between 
+			 * (range)last and the last element of the vector starting at 
+			 * (range)first the _finish iterator is reduced by the length 
+			 * of the range erased then the elements between the (range)first 
+			 * and the last element are destroyed, since they were already copied
+			 * The last element in the vector is returned
+			 */ 
+			iterator erase (iterator first, iterator last) {
+				ft::uninitialized_copy(last, end(), first);
+				_finish = _finish - (last - first);
+				while (first != _finish)
+					_allocator.destroy(&*first++);
+				return first;
+			};
+
 			// swap:					Swap content
 			// emplace:				Construct and insert element
 			// emplace_back		Construct and insert element at the end
 
-			/*** Allocator ***/
-			// get_allocator: Get allocator
+	/** ALLOCATOR: ***/
 
-		/********************************************************************
-		 * 										NON-MEMBER FUNCTION OVERLOADS									*
-		 ********************************************************************/
-		// Relational operators
-		template <class TO, class AllocO> friend bool operator== (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
-		template <class TO, class AllocO> friend bool operator!= (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
-		template <class TO, class AllocO> friend bool operator<  (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
-		template <class TO, class AllocO> friend bool operator<= (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
-		template <class TO, class AllocO> friend bool operator>  (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
-		template <class TO, class AllocO> friend bool operator>= (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
+			allocator_type get_allocator() const { return _allocator; }
+
+	/*-----------------------------------*/
+ /**	NON:MEMBER:FUNCTION:OVERLOADS:	*/
+/*-----------------------------------*/
+	/** @_relational_operators: */
+
+			template <class TO, class AllocO> friend bool operator== (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
+			template <class TO, class AllocO> friend bool operator!= (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
+			template <class TO, class AllocO> friend bool operator<  (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
+			template <class TO, class AllocO> friend bool operator<= (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
+			template <class TO, class AllocO> friend bool operator>  (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
+			template <class TO, class AllocO> friend bool operator>= (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
 
 		// swap
 	};
