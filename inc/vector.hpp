@@ -25,9 +25,9 @@
  *	@template_class: We want to allow users to use vector to hold a variety of types.
  */
 
-	 /*----------*/
-	/**	VECTOR: */
- /*----------*/
+									 /*----------*/
+									/**	VECTOR: */
+								 /*----------*/
 
 namespace ft {
 	//	Vector class template - container definition
@@ -158,24 +158,43 @@ namespace ft {
 				return *this;
 			}
 
+/** @assign:	Assigns new contents to the vector replacing its current contents
+ *						and modifying its size accordingly. 
+ */
+		// Replaces the contents with 'count' copies of value 'value'
+		void assign( size_type count, const value_type& value) {
+			while(!empty())
+				pop_back();
+			reserve();
+ 			insert(begin(), count, value);
+		}
 
-			/**
-			 * @details We explicitly test for self-assignment by comparing the pointer
-			 * and 'this', which points to the left-hand side. If the objects are the same,
-			 * then there's nothing to do in the assignment operator, and we immediatly
-			 * fall through to the return statement.
-			 * If the objects are different, we need to free the old space and assign new
-			 * values to each element, copying the contents from the right-hand side to the
-			 * newly allocated array.
-			 * 
-			 * If we didn't check for self-assignment, we would always uncreate() the existing
-			 * array from the left-hand operand, destroying the elements and returning the space
-			 * that had been used. However, if the two operands were the same object, then the 
-			 * right operand, the result would be that, when we freed the space held by the left 
-			 * operand, we would also have freed the space for the right-hand object. When create()
-			 * attempted to copy the elements from 'y', those elements would have been destroyed
-			 * and the memory returned to the system.
-			*/
+		template< class InputIterator > 
+		void assign( InputIterator first, InputIterator last,
+		typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL)
+		{
+			for (pointer i = _data; i != _finish; i++)
+				_allocator.destroy(i);
+			insert(begin(), first, last);
+		}
+
+	/**
+	 * @details We explicitly test for self-assignment by comparing the pointer
+	 * and 'this', which points to the left-hand side. If the objects are the same,
+	 * then there's nothing to do in the assignment operator, and we immediatly
+	 * fall through to the return statement.
+	 * If the objects are different, we need to free the old space and assign new
+	 * values to each element, copying the contents from the right-hand side to the
+	 * newly allocated array.
+	 * 
+	 * If we didn't check for self-assignment, we would always uncreate() the existing
+	 * array from the left-hand operand, destroying the elements and returning the space
+	 * that had been used. However, if the two operands were the same object, then the 
+	 * right operand, the result would be that, when we freed the space held by the left 
+	 * operand, we would also have freed the space for the right-hand object. When create()
+	 * attempted to copy the elements from 'y', those elements would have been destroyed
+	 * and the memory returned to the system.
+	*/
 		
 	/** ITERATORS:	***/
 
@@ -193,7 +212,7 @@ namespace ft {
 
 			bool empty() const { 					return (begin() == end()); } 						//checks whether the container is empty
 			size_type size() const {			return size_type(end() - begin()); } 		// returns the n of elements
-			size_type max_size() const { 	return size_type(-1) / sizeof(T); }			// returns the max posible n of elems 
+			size_type max_size() const { 	return size_type(-1) / sizeof(T); }			// returns the max possible n of elems 
 			
 			void reserve(size_type new_cap) { 																		// reservers storage if capacity is less than new_cap
 				if (capacity() < new_cap) {
@@ -226,7 +245,11 @@ namespace ft {
 
 			reference operator[](size_type n) { 						return *(begin() + n );}
 			const_reference operator[](size_type n) const { return *(begin() + n );}
-			// at: 						Access element
+			
+			reference at(size_type pos) {
+				return *(begin() + pos);
+			}
+
 			// front: 				Access first element
 			// back: 					Access last element
 			reference back() { return *(end() - 1); }
@@ -234,23 +257,7 @@ namespace ft {
 			// data: 					Access data
 
 	/**	MODIFIERS: */
-			/** @assign:	Assigns new contents to the vector replacing its current contents
-			 *						and modifying its size accordingly. 
-			 */
-			// range
-					//template <class InputIterator>
-					//void assign (InputIterator first, InputIterator last,
-					/** @why: Understand the necessity of using enable_if and is_integral
-					//typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = u_nullptr) */
-					//{
-						// In the range version, the new contents are elements constructed from each of the
-						// elements in the range between first and last, in the same order.
-					//}
-			// fill
-			//	void assign (size_type n, const value_type& val){
-					// In the fill version the new contents are n elements, each initializer to a copy of val.
-			//	}
-				
+			
 
 			/*	@push_back: Add element at the end
 			 * 	If the storage capacity of the vector is not almost full 
@@ -277,19 +284,39 @@ namespace ft {
 			}
 
 			// single element
-			iterator insert (iterator position, const T& val) {
+			iterator insert (iterator position, const T& value) {
 				size_type n = position - begin();
 				if (_finish != _capacity && position != end()) {
-					_allocator.construct(_finish, val); //void construct ( pointer p, const_reference val );
+					_allocator.construct(_finish, value); //void construct ( pointer p, const_reference val );
 					_finish++;
 				}
 				else
-					insert_aux(position, val);
+					insert_aux(position, value);
 				return _data + n;
 			}
 
-/** @insert_fill: void insert (iterator position, size_type n, const value_type& val);	*/
+/** @insert_fill: 	*/
+			void insert (iterator position, size_type n, const value_type& value)
+			{
+				reserve(size() + n);
+				ft::uninitialized_copy(position, position + n, (position + 1));
+				while (n--)
+					_allocator.construct(&(*position), value);
+				_finish = _finish + n;
+			}
+
 /** @insert_range:	template <class InputIterator> void insert (iterator position, InputIterator first, InputIterator last); */
+			template <class InputIterator>
+			void insert (iterator position, InputIterator first, InputIterator last,
+			typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL)
+			{
+				size_type n = std::distance(first, last);
+				reserve(size() + n);
+				ft::uninitialized_copy(position, position + n, (position + 1));
+				while(n--)
+					_allocator.construct(&(*position), *first);
+			}
+
 
 			/**	@insert_aux:
 			 *	If size does not exceeds the capacity of the vector,
@@ -369,7 +396,20 @@ namespace ft {
 				return first;
 			};
 
-			// swap:					Swap content
+			void swap (vector& other) {
+				pointer tmp = _data;
+				_data = other._data;
+
+				other._data = tmp;
+				 tmp = _finish;
+				_finish = other._finish;
+				other._finish = tmp;
+
+				 tmp = _capacity;
+				_capacity = other._capacity;
+				other._capacity = tmp;
+			}
+
 			// emplace:				Construct and insert element
 			// emplace_back		Construct and insert element at the end
 
@@ -388,10 +428,12 @@ namespace ft {
 			template <class TO, class AllocO> friend bool operator<= (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
 			template <class TO, class AllocO> friend bool operator>  (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
 			template <class TO, class AllocO> friend bool operator>= (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
+			
+			template< class TO, class AllocO> friend void swap ( ft::vector<T,Alloc>& lhs, ft::vector<T,Alloc>& rhs ); 
 
-		// swap
 	};
-			// Operator= : Assign content
+
+	// Operator= : Assign content
 	template <class T, class Alloc> 
 	bool operator == (const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs) {
 		if (lhs.size() != rhs.size())
@@ -423,11 +465,9 @@ namespace ft {
 	template <class T, class Alloc> 
 	bool operator >=	(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs) { 
 		return !(lhs < rhs); }
-}
+
+	template< class T, class Alloc> 
+	void swap ( ft::vector<T,Alloc>& lhs, ft::vector<T,Alloc>& rhs ){ lhs.swap(rhs); }
+};
 
 #endif
-
-// Resources: 
-//	Accelerated C++ Practical Programming by Example - Andrew Koenig, Barbara E. Moo
-//	https://djvu.online/file/rh2C1FgVK0ODE
-// 	11.3.3 Assignment is not initialization (bookmark)
