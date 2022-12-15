@@ -165,7 +165,7 @@ namespace ft {
 		void assign( size_type count, const value_type& value) {
 			while(!empty())
 				pop_back();
-			reserve();
+			reserve(count);
  			insert(begin(), count, value);
 		}
 
@@ -173,9 +173,10 @@ namespace ft {
 		void assign( InputIterator first, InputIterator last,
 		typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL)
 		{
-			for (pointer i = _data; i != _finish; i++)
-				_allocator.destroy(i);
-			insert(begin(), first, last);
+			while(!empty())
+				pop_back();
+			reserve(std::distance(first, last));
+ 			insert(begin(), first, last);
 		}
 
 	/**
@@ -292,7 +293,7 @@ namespace ft {
 				}
 				else
 					insert_aux(position, value);
-				return _data + n;
+				return begin() + n;
 			}
 
 /** @insert_fill: 	*/
@@ -310,13 +311,13 @@ namespace ft {
 			void insert (iterator position, InputIterator first, InputIterator last,
 			typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL)
 			{
-				size_type n = std::distance(first, last);
-				reserve(size() + n);
-				ft::uninitialized_copy(position, position + n, (position + 1));
-				while(n--)
-					_allocator.construct(&(*position), *first);
+				pointer new_first = &*first;
+				pointer new_last = &*last;
+				for ( ; new_first != new_last; ++new_first) {
+					position = insert(position, *new_first);
+					++position;
+				}
 			}
-
 
 			/**	@insert_aux:
 			 *	If size does not exceeds the capacity of the vector,
