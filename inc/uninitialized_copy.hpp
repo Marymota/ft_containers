@@ -1,5 +1,5 @@
-#ifndef _MEMORY_HPP_
-#define _MEMORY_HPP_
+#ifndef _UNINITIALIZED_COPY_HPP_
+#define _UNINITIALIZED_COPY_HPP_
 
 namespace ft {
 	template<class InputIterator, class ForwardIterator>

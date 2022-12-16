@@ -1,5 +1,5 @@
-#ifndef _TYPE_TRAITS_HPP_
-#define _TYPE_TRAITS_HPP_
+#ifndef _IS_INTEGRAL_HPP_
+#define _IS_INTEGRAL_HPP_
 
 /** @brief type_traits (Header)
  * This Header defines a series of classes to obtain type information on compile-time.
@@ -18,10 +18,6 @@ namespace ft {
 	 * prior to C++20's concepts, in particular for conditionally
 	 * removing functions from the candidate set based on type traits.
 	 */ 
-
-		// ENABLE_IF: Enable type if condition is met (possible implementation)
-		template <bool B, class T = void> struct enable_if {};
-		template<class T>	struct enable_if<true, T> { typedef T type; };// If true define the T type value
 
 		/** @integral_constant: Template designed to provide compile-time constants as types*/
 		template <class T, T v>

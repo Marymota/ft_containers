@@ -6,10 +6,12 @@
 #include <cstddef> 	// add ptrdiff_t
 #include "reverse_iterator.hpp"
 #include "random_access_iterator.hpp"
-#include "type_traits.hpp"
 #include "iterator_traits.hpp"
-#include "memory.hpp"
-#include "iterator.hpp"
+#include "enable_if.hpp"
+#include "is_integral.hpp"
+#include "distance.hpp"
+#include "uninitialized_copy.hpp"
+#include "lex_compare.hpp"
 
 /** @details The <memory> header provides a class, called allocator<T>, that allocates
  *	a block of uninitialized memory that is intended to contain objects of type T, and
@@ -51,13 +53,13 @@ namespace ft {
 			typedef	ft::random_access_iterator<const value_type>				const_iterator;
 			typedef ft::reverse_iterator<iterator>											reverse_iterator;
 			typedef ft::reverse_iterator<const_iterator>								const_reverse_iterator;
-			typedef typename iterator_traits<iterator>::difference_type	difference_type;	//signed integral type: ptrdiff_t		
+			typedef typename ft::iterator_traits<iterator>::difference_type	difference_type;	//signed integral type: ptrdiff_t		
 			typedef	size_t																							size_type;				//unsigned integral type: difference_type
 
 		protected: // implementation
 			allocator_type	_allocator;				//	Allocator object
 			pointer					_data;						//	First element
-			pointer 				_finish;						//	Last element in the vector 
+			pointer 				_finish;					//	Last element in the vector 
 			pointer					_capacity;				//	Las allocated piece of memory
 
 		public:
@@ -117,7 +119,7 @@ namespace ft {
 				_finish(0),
 				_capacity(0)
 			{
-				const size_type n = std::distance(first, last);
+				const size_type n = ft::distance(first, last);
 				_data = _allocator.allocate(n);
 				_finish = _data;
 				_capacity = _data + n;
@@ -175,7 +177,7 @@ namespace ft {
 		{
 			while(!empty())
 				pop_back();
-			reserve(std::distance(first, last));
+			reserve(ft::distance(first, last));
 			for ( ; first != last; first++)
 				push_back(*first);
 		}
@@ -247,8 +249,16 @@ namespace ft {
 
 			reference operator[](size_type n) { return *(begin() + n );}
 			const_reference operator[](size_type n) const { return *(begin() + n );}
-			reference at(size_type pos) {	return *(begin() + pos);}
-			const_reference at(size_type pos) const {	return *(begin() + pos);}
+			reference at(size_type pos) {	
+				if (!(pos < size()))
+					throw std::out_of_range("at: out of range");  
+				return *(begin() + pos);
+			}
+			const_reference at(size_type pos) const {
+				if (!(pos < size()))
+					throw std::out_of_range("at: out of range");  
+				return *(begin() + pos);
+			}
 			reference front() {	return *(begin()); }
 			const_reference front() const {	return *(begin()); }
 			reference back() { return *(end() - 1); }
@@ -258,7 +268,6 @@ namespace ft {
 			
 	/**	MODIFIERS: */
 			
-
 			/*	@push_back: Add element at the end
 			 * 	If the storage capacity of the vector is not almost full 
 			 *	(-1 from full capacity) a new object (val) is constructed
@@ -356,13 +365,13 @@ namespace ft {
 				}
 			}
 
+	/** @insert_range:	template <class InputIterator> void insert (iterator position, InputIterator first, InputIterator last); */
 
-/** @insert_range:	template <class InputIterator> void insert (iterator position, InputIterator first, InputIterator last); */
 			template <class InputIterator>
 			void insert (iterator position, InputIterator first, InputIterator last,
 			typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL)
 			{
-				size_type n = std::distance(first, last);
+				size_type n = ft::distance(first, last);
 				if (((size() + n) < capacity()) && position == end()) {
 					while (first != last) {
 						push_back(*first++);
@@ -441,14 +450,13 @@ namespace ft {
 				other._capacity = tmp;
 			}
 
-			// emplace:				Construct and insert element
-			// emplace_back		Construct and insert element at the end
-
 	/** ALLOCATOR: ***/
 
 			allocator_type get_allocator() const { return _allocator; }
 
-	/** HELPERS: ***/
+	 /**-----------**/
+	/** HELPERS: --*/
+ /**-----------**/
 		size_type new_capacity(size_type len) {
 			size_type new_capacity = capacity();
 
@@ -481,7 +489,6 @@ namespace ft {
 			template <class TO, class AllocO> friend bool operator>= (const vector<TO,AllocO>& lhs, const vector<TO,AllocO>& rhs);
 			
 			template< class TO, class AllocO> friend void swap ( ft::vector<T,Alloc>& lhs, ft::vector<T,Alloc>& rhs ); 
-
 	};
 
 	// Operator= : Assign content
@@ -503,7 +510,7 @@ namespace ft {
 	// lexicographical_compare compares the elements sequentially (checking both a<b and b<a)
 	template <class T, class Alloc> 
 	bool operator <	(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs) { 
-		return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()); }
+		return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()); }
 
 	template <class T, class Alloc> 
 	bool operator <=	(const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs) { 
