@@ -140,21 +140,20 @@ namespace ft {
 /***	(destructor)
  * 		Vector destructor	***/
 			~vector() {
-				size_type save_finish = size();
-				/** @why: pointer i != _finish don't work */
-				for (size_type i = 0; i < save_finish; i++){ 
-					_finish--;
-				}
-				if (_capacity)
+				while (!empty())
+					pop_back();
+				if (capacity() != 0)
 					_allocator.deallocate(_data, capacity()); //	void deallocate (pointer p, size_type n);
+				_capacity = 0;
 			}
 
 /***	operator=
  * 		Assign content	***/
 			vector& operator= (const vector& other) {
-				_data = other._data;
-				_finish = ft::uninitialized_copy(other.begin(), other.end(), _data);
-				_capacity = _finish;
+				if (this == &other)
+					return *this;
+
+				assign(other.begin(), other.end());
 				return *this;
 			}
 
@@ -177,8 +176,8 @@ namespace ft {
 			while(!empty())
 				pop_back();
 			reserve(std::distance(first, last));
- 			while (last != first)
-				push_back(*last--);
+			for ( ; first != last; first++)
+				push_back(*first);
 		}
 
 	/**
@@ -353,13 +352,7 @@ namespace ft {
 						_allocator.deallocate(new_start, len);
 						throw;
 					}
-					for (pointer i = _data; i != _finish; i++)
-						_allocator.destroy(i); 					// Destroy old vector data 
-					int n = _capacity - _data;
-					_allocator.deallocate(_data, n);	//	Deallocate old vector data 
-					_data = new_start;								//	Redirect pointers to new vector		
-					_finish = new_finish;
-					_capacity = _data + len;
+					redirect(new_start, new_finish, len);
 				}
 			}
 
@@ -400,16 +393,9 @@ namespace ft {
 						_allocator.deallocate(new_start, len);
 						throw;
 					}
-					for (pointer i = _data; i != _finish; i++)
-						_allocator.destroy(i); 					// Destroy old vector data 
-					int n = _capacity - _data;
-					_allocator.deallocate(_data, n);	//	Deallocate old vector data 
-					_data = new_start;								//	Redirect pointers to new vector		
-					_finish = new_finish;
-					_capacity = _data + len;
+					redirect(new_start, new_finish, len);
 				}
 			}
-			
 			/** @brief:
 			 * If the position given is not the last element of the vector
 			 * we copy all the elements from position to the last element
@@ -470,7 +456,17 @@ namespace ft {
 				new_capacity = len != 0 ? 2 * len : 1;
 			}
 			return new_capacity;
-		}		
+		}
+
+		void redirect(pointer new_start, pointer new_finish, size_type len) {
+			for (pointer i = _data; i != _finish; i++)
+				_allocator.destroy(i);			
+			int n = _capacity - _data;
+			_allocator.deallocate(_data, n);
+			_data = new_start;
+			_finish = new_finish;
+			_capacity = _data + len;
+		}
 
 	/*-----------------------------------*/
  /**	NON:MEMBER:FUNCTION:OVERLOADS:	*/
