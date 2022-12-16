@@ -275,7 +275,7 @@ namespace ft {
 					_finish++;
 				}
 				else
-					insert_aux(end(), val);
+					insert(end(), val);
 			}
 
 			// pop_back:			Delete last element
@@ -289,9 +289,46 @@ namespace ft {
 				size_type n = position - begin();
 				if (_finish != _capacity && position == end())
 						push_back(value);
-				else
-					insert_aux(position, value);
-			return begin() + n;
+				else if (_finish != _capacity) {
+					ft::uninitialized_copy(position, end() - 1, (position + 1));
+					_allocator.construct(&(*position), value);
+					_finish++;
+				}
+				else { // No free space
+					const size_type old_finish = size();
+					const size_type len = old_finish != 0 ? 2 * old_finish : 1; 					// if _finish != 0 double it
+					pointer new_start = _allocator.allocate(len); 
+					pointer new_finish = new_start;
+					try {
+						new_finish = ft::uninitialized_copy(begin(), position, new_start); // copy from start of old vec to position
+						_allocator.construct(new_finish, value); 															// add new value to position in the new vec
+						++new_finish;
+						new_finish = ft::uninitialized_copy(position, end(), new_finish);	// copy the rest of the old vector after position
+					}
+					catch(...) {																													// If an error occurrs destroy the new allocated vector
+						for (pointer i = new_finish; i != new_start; i--) {
+							_allocator.destroy(i);
+						}
+						_allocator.deallocate(new_start, len);
+						throw;
+					}
+					for (pointer i = _data; i != _finish; i++)
+						_allocator.destroy(i); 					// Destroy old vector data 
+					int n = _capacity - _data;
+					_allocator.deallocate(_data, n);	//	Deallocate old vector data 
+					_data = new_start;								//	Redirect pointers to new vector		
+					_finish = new_finish;
+					_capacity = _data + len;
+				}
+				return begin() + n;
+			}
+
+		size_type new_capacity(size_type len) {
+			size_type new_capacity = capacity();
+			while (len > new_capacity) {
+				new_capacity = len != 0 ? 2 * len : 1;
+			}
+			return new_capacity;
 		}
 
 /** @insert_fill: 	*/
@@ -310,11 +347,7 @@ namespace ft {
 				}
 				else {
 					size_type len = size() + n;
-					size_type new_capacity = capacity();
-					while (len > new_capacity) {
-						new_capacity = len != 0 ? 2 * len : 1;
-					}
-					pointer new_start = _allocator.allocate(len); 
+					pointer new_start = _allocator.allocate(new_capacity(len));
 					pointer new_finish = new_start;
 					try {
 						new_finish = ft::uninitialized_copy(begin(), position, new_start); // copy from start of old vec to position
@@ -361,63 +394,12 @@ namespace ft {
 				}
 				else {
 					size_type len = size() + n;
-					size_type new_capacity = capacity();
-					while (len > new_capacity) {
-						new_capacity = len != 0 ? 2 * len : 1;
-					}
-					pointer new_start = _allocator.allocate(len); 
+					pointer new_start = _allocator.allocate(new_capacity(len)); 
 					pointer new_finish = new_start;
 					try {
 						new_finish = ft::uninitialized_copy(begin(), position, new_start); // copy from start of old vec to position
 						while (first != last)
 							_allocator.construct(new_finish++, *first++);												// add new value to position in the new vec
-						new_finish = ft::uninitialized_copy(position, end(), new_finish);	// copy the rest of the old vector after position
-					}
-					catch(...) {																													// If an error occurrs destroy the new allocated vector
-						for (pointer i = new_finish; i != new_start; i--) {
-							_allocator.destroy(i);
-						}
-						_allocator.deallocate(new_start, len);
-						throw;
-					}
-					for (pointer i = _data; i != _finish; i++)
-						_allocator.destroy(i); 					// Destroy old vector data 
-					int n = _capacity - _data;
-					_allocator.deallocate(_data, n);	//	Deallocate old vector data 
-					_data = new_start;								//	Redirect pointers to new vector		
-					_finish = new_finish;
-					_capacity = _data + len;
-				}
-			}
-
-			/**	@insert_aux:
-			 *	If size does not exceeds the capacity of the vector,
-			 *	we copy the vector elements to the space after position
-			 * 	and construct the new object at position.
-			 * 	If size is equal to the vector capacity a resize is necessary.
-			 * 	A new empty vector is created with double the size of the previous.
-			 *	All the elements until position are copied.
-			 *	The "val" is added into position.
-			 *	The rest of the content after position is copied to the new vector.
-			 * 	All old vector is destroyed and deallocated.
-			 *	The vector pointers are redirected to the new vector. 
-			 */ 
-
-			void insert_aux (iterator position, const value_type& val) {
-				if (_finish != _capacity) {
-					ft::uninitialized_copy(position, end() - 1, (position + 1));
-					_allocator.construct(&(*position), val);
-					_finish++;
-				}
-				else { // No free space
-					const size_type old_finish = size();
-					const size_type len = old_finish != 0 ? 2 * old_finish : 1; 					// if _finish != 0 double it
-					pointer new_start = _allocator.allocate(len); 
-					pointer new_finish = new_start;
-					try {
-						new_finish = ft::uninitialized_copy(begin(), position, new_start); // copy from start of old vec to position
-						_allocator.construct(new_finish, val); 															// add new value to position in the new vec
-						++new_finish;
 						new_finish = ft::uninitialized_copy(position, end(), new_finish);	// copy the rest of the old vector after position
 					}
 					catch(...) {																													// If an error occurrs destroy the new allocated vector
