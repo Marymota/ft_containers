@@ -110,6 +110,29 @@
 // 	return (0);
 // }
 //-------------------------------------------------------
+
+void vector_insert() {
+	ft::vector<int> myvector (3, 100);
+	ft::vector<int>::iterator it;
+	
+	it = myvector.begin();
+	it = myvector.insert(it, 200);
+
+	myvector.insert(it,2,300);
+	it = myvector.begin();
+
+	ft::vector<int> anothervector (2,400);
+	myvector.insert (it+2,anothervector.begin(),anothervector.end());
+
+	int myarray[] = { 501,502,503};
+	myvector.insert (myvector.begin(), myarray, myarray+3);
+
+	std::cout << "myvector contains:";
+	for (it=myvector.begin(); it<myvector.end(); it++)
+		std::cout << ' ' << *it;
+	std::cout << '\n';
+}
+
 void vector_assign() {
 	ft::vector<int> first;
 	ft::vector<int> second;
@@ -117,17 +140,17 @@ void vector_assign() {
 
 	first.assign(7,100);
 
-//	ft::vector<int>::iterator it;
-//	it = first.begin()+1;
-//
-//	second.assign (it, first.end()-1);
-//
-//	int myints[] = {1776, 7, 4};
-//	third.assign(myints, myints+3);
-//
-//	std::cout << "Size of first: "  << int (first.size())		<< '\n';
-//	std::cout << "Size of second: " << int (second.size())	<< '\n';
-//	std::cout << "Size of third: "	<< int (third.size())		<< '\n';
+	ft::vector<int>::iterator it;
+	it = first.begin()+1;
+
+	second.assign (it, first.end()-1);
+
+	int myints[] = {1776, 7, 4};
+	third.assign(myints, myints+3);
+
+	std::cout << "Size of first: "  << int (first.size())		<< '\n';
+	std::cout << "Size of second: " << int (second.size())	<< '\n';
+	std::cout << "Size of third: "	<< int (third.size())		<< '\n';
 }
 
 void vector_at() {
@@ -356,28 +379,6 @@ void stack() {
 	std::cout << std::endl;
 }
 
-void vector_insert() {
-	ft::vector<int> myvector (3, 100);
-	ft::vector<int>::iterator it;
-	
-	it = myvector.begin();
-	it = myvector.insert(it, 200);
-
-	myvector.insert(it,2,300);
-	it = myvector.begin();
-
-	ft::vector<int> anothervector (2,400);
-	myvector.insert (it+2,anothervector.begin(),anothervector.end());
-
-	int myarray[] = { 501,502,503};
-	myvector.insert (myvector.begin(), myarray, myarray+3);
-	
-	std::cout << "myvector contains:";
-	for (it=myvector.begin(); it<myvector.end(); it++)
-		std::cout << ' ' << *it;
-	std::cout << '\n';
-	}
-
 //-------------------------------------------------------
 
 
@@ -385,22 +386,22 @@ int main() {
 
 	clock_t start, finish;
 	start = clock();
-//	//STACK
-//		stack(); 	// Print "3 2 4 77"
-//		stack_operators();
-//
-//	//VECTOR
-//		test_vector();
-//		construct_vector();
-//		vector_assignment();
-//		vector_begin_end();
-//		vector_reverse_iterator();
-//		vector_reserve();
-//		vector_erase();
-//		vector_swap();
-//		vector_at();
+	//STACK
+		stack(); 	// Print "3 2 4 77"
+		stack_operators();
+
+	//VECTOR
+		test_vector();
+		construct_vector();
+		vector_assignment();
+		vector_begin_end();
+		vector_reverse_iterator();
+		vector_reserve();
+		vector_erase();
+		vector_swap();
+		vector_at();
 		vector_assign();
-//		vector_insert();
+		vector_insert();
 		finish = clock();
 
 		printf("Time taken: %f seconds", (double)(finish - start) / (double)CLOCKS_PER_SEC );

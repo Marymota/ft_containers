@@ -166,7 +166,8 @@ namespace ft {
 			while(!empty())
 				pop_back();
 			reserve(count);
- 			insert(begin(), count, value);
+ 			while(count--)
+				push_back(value);
 		}
 
 		template< class InputIterator > 
@@ -176,7 +177,8 @@ namespace ft {
 			while(!empty())
 				pop_back();
 			reserve(std::distance(first, last));
- 			insert(begin(), first, last);
+ 			while (last != first)
+				push_back(*last--);
 		}
 
 	/**
@@ -244,19 +246,17 @@ namespace ft {
 
 	/** ELEMENT:ACCESS: */
 
-			reference operator[](size_type n) { 						return *(begin() + n );}
+			reference operator[](size_type n) { return *(begin() + n );}
 			const_reference operator[](size_type n) const { return *(begin() + n );}
-			
-			reference at(size_type pos) {
-				return *(begin() + pos);
-			}
-
-			// front: 				Access first element
-			// back: 					Access last element
+			reference at(size_type pos) {	return *(begin() + pos);}
+			const_reference at(size_type pos) const {	return *(begin() + pos);}
+			reference front() {	return *(begin()); }
+			const_reference front() const {	return *(begin()); }
 			reference back() { return *(end() - 1); }
-			const_reference back() const { return *(end() - 1); }	
-			// data: 					Access data
-
+			const_reference back() const { return *(end() - 1); }
+			value_type* data() { return begin(); }
+			const value_type* data() const { begin(); }
+			
 	/**	MODIFIERS: */
 			
 
@@ -285,37 +285,108 @@ namespace ft {
 			}
 
 			// single element
-			iterator insert (iterator position, const T& value) {
+			iterator insert (iterator position, const value_type& value) {
 				size_type n = position - begin();
-				if (_finish != _capacity && position != end()) {
-					_allocator.construct(_finish, value); //void construct ( pointer p, const_reference val );
-					_finish++;
-				}
+				if (_finish != _capacity && position == end())
+						push_back(value);
 				else
 					insert_aux(position, value);
-				return begin() + n;
-			}
+			return begin() + n;
+		}
 
 /** @insert_fill: 	*/
 			void insert (iterator position, size_type n, const value_type& value)
 			{
-				reserve(size() + n);
-				ft::uninitialized_copy(position, position + n, (position + 1));
-				while (n--)
-					_allocator.construct(&(*position), value);
-				_finish = _finish + n;
+				if (((size() + n) < capacity()) && position == end()) {
+					while (n--)
+						push_back(value);
+				}
+				else if ((size() + n) < capacity()) {
+					ft::uninitialized_copy(position, end() - 1, (position + 1));
+					while (n--) {
+						_allocator.construct(&(*position), value); 		
+						_finish++;
+					}
+				}
+				else {
+					size_type len = size() + n;
+					size_type new_capacity = capacity();
+					while (len > new_capacity) {
+						new_capacity = len != 0 ? 2 * len : 1;
+					}
+					pointer new_start = _allocator.allocate(len); 
+					pointer new_finish = new_start;
+					try {
+						new_finish = ft::uninitialized_copy(begin(), position, new_start); // copy from start of old vec to position
+						while (n--)
+							_allocator.construct(new_finish++, value); 															// add new value to position in the new vec
+						new_finish = ft::uninitialized_copy(position, end(), new_finish);	// copy the rest of the old vector after position
+					}
+					catch(...) {																													// If an error occurrs destroy the new allocated vector
+						for (pointer i = new_finish; i != new_start; i--) {
+							_allocator.destroy(i);
+						}
+						_allocator.deallocate(new_start, len);
+						throw;
+					}
+					for (pointer i = _data; i != _finish; i++)
+						_allocator.destroy(i); 					// Destroy old vector data 
+					int n = _capacity - _data;
+					_allocator.deallocate(_data, n);	//	Deallocate old vector data 
+					_data = new_start;								//	Redirect pointers to new vector		
+					_finish = new_finish;
+					_capacity = _data + len;
+				}
 			}
+
 
 /** @insert_range:	template <class InputIterator> void insert (iterator position, InputIterator first, InputIterator last); */
 			template <class InputIterator>
 			void insert (iterator position, InputIterator first, InputIterator last,
 			typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL)
 			{
-				pointer new_first = &*first;
-				pointer new_last = &*last;
-				for ( ; new_first != new_last; ++new_first) {
-					position = insert(position, *new_first);
-					++position;
+				size_type n = std::distance(first, last);
+				if (((size() + n) < capacity()) && position == end()) {
+					while (first != last) {
+						push_back(*first++);
+						_finish++;
+					}
+				}
+				else if ((size() + n) < capacity()) {
+					ft::uninitialized_copy(position, end() - 1, first);
+					while (first != last) {
+						_allocator.construct(&(*position), *first++); 		
+						_finish++;
+					}
+				}
+				else {
+					size_type len = size() + n;
+					size_type new_capacity = capacity();
+					while (len > new_capacity) {
+						new_capacity = len != 0 ? 2 * len : 1;
+					}
+					pointer new_start = _allocator.allocate(len); 
+					pointer new_finish = new_start;
+					try {
+						new_finish = ft::uninitialized_copy(begin(), position, new_start); // copy from start of old vec to position
+						while (first != last)
+							_allocator.construct(new_finish++, *first++);												// add new value to position in the new vec
+						new_finish = ft::uninitialized_copy(position, end(), new_finish);	// copy the rest of the old vector after position
+					}
+					catch(...) {																													// If an error occurrs destroy the new allocated vector
+						for (pointer i = new_finish; i != new_start; i--) {
+							_allocator.destroy(i);
+						}
+						_allocator.deallocate(new_start, len);
+						throw;
+					}
+					for (pointer i = _data; i != _finish; i++)
+						_allocator.destroy(i); 					// Destroy old vector data 
+					int n = _capacity - _data;
+					_allocator.deallocate(_data, n);	//	Deallocate old vector data 
+					_data = new_start;								//	Redirect pointers to new vector		
+					_finish = new_finish;
+					_capacity = _data + len;
 				}
 			}
 
