@@ -294,18 +294,17 @@ namespace ft {
 					_allocator.construct(&(*position), value);
 					_finish++;
 				}
-				else { // No free space
-					const size_type old_finish = size();
-					const size_type len = old_finish != 0 ? 2 * old_finish : 1; 					// if _finish != 0 double it
-					pointer new_start = _allocator.allocate(len); 
+				else {
+					size_type len = new_capacity(size());
+					pointer new_start = _allocator.allocate(len);
 					pointer new_finish = new_start;
 					try {
-						new_finish = ft::uninitialized_copy(begin(), position, new_start); // copy from start of old vec to position
-						_allocator.construct(new_finish, value); 															// add new value to position in the new vec
+						new_finish = ft::uninitialized_copy(begin(), position, new_start); 
+						_allocator.construct(new_finish, value);
 						++new_finish;
-						new_finish = ft::uninitialized_copy(position, end(), new_finish);	// copy the rest of the old vector after position
+						new_finish = ft::uninitialized_copy(position, end(), new_finish);	
 					}
-					catch(...) {																													// If an error occurrs destroy the new allocated vector
+					catch(...) {																												
 						for (pointer i = new_finish; i != new_start; i--) {
 							_allocator.destroy(i);
 						}
@@ -313,23 +312,15 @@ namespace ft {
 						throw;
 					}
 					for (pointer i = _data; i != _finish; i++)
-						_allocator.destroy(i); 					// Destroy old vector data 
+						_allocator.destroy(i);
 					int n = _capacity - _data;
-					_allocator.deallocate(_data, n);	//	Deallocate old vector data 
-					_data = new_start;								//	Redirect pointers to new vector		
+					_allocator.deallocate(_data, n);
+					_data = new_start;	
 					_finish = new_finish;
 					_capacity = _data + len;
 				}
 				return begin() + n;
 			}
-
-		size_type new_capacity(size_type len) {
-			size_type new_capacity = capacity();
-			while (len > new_capacity) {
-				new_capacity = len != 0 ? 2 * len : 1;
-			}
-			return new_capacity;
-		}
 
 /** @insert_fill: 	*/
 			void insert (iterator position, size_type n, const value_type& value)
@@ -470,6 +461,16 @@ namespace ft {
 	/** ALLOCATOR: ***/
 
 			allocator_type get_allocator() const { return _allocator; }
+
+	/** HELPERS: ***/
+		size_type new_capacity(size_type len) {
+			size_type new_capacity = capacity();
+
+			while (len >= new_capacity) {
+				new_capacity = len != 0 ? 2 * len : 1;
+			}
+			return new_capacity;
+		}		
 
 	/*-----------------------------------*/
  /**	NON:MEMBER:FUNCTION:OVERLOADS:	*/
