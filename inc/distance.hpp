@@ -2,6 +2,8 @@
 #define _DISTANCE_HPP_
 
 #include <iterator>
+#include "enable_if.hpp"
+#include "is_integral.hpp"
 #include "iterator_traits.hpp"
 #include "random_access_iterator.hpp"
 

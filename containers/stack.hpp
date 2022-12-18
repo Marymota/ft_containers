@@ -1,6 +1,6 @@
 #ifndef _STACK_HPP_
 #define _STACK_HPP_
-#include "../inc/vector.hpp"	//change to ft::vector when finished
+#include "vector.hpp"	//change to ft::vector when finished
 	/**
 	 * @brief Stacks are designed	to operate in a LIFO context (last-in first-out), 
 	 * where elements are	inserted and extracted only from one end of the container.

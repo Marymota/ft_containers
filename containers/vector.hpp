@@ -4,14 +4,14 @@
 #include <iostream>
 #include <memory>		// add allocator<T>
 #include <cstddef> 	// add ptrdiff_t
-#include "reverse_iterator.hpp"
-#include "random_access_iterator.hpp"
-#include "iterator_traits.hpp"
-#include "enable_if.hpp"
-#include "is_integral.hpp"
-#include "distance.hpp"
-#include "uninitialized_copy.hpp"
-#include "lex_compare.hpp"
+#include "../inc/reverse_iterator.hpp"
+#include "../inc/random_access_iterator.hpp"
+#include "../inc/iterator_traits.hpp"
+#include "../inc/enable_if.hpp"
+#include "../inc/is_integral.hpp"
+#include "../inc/distance.hpp"
+#include "../inc/uninitialized_copy.hpp"
+#include "../inc/lex_compare.hpp"
 
 /** @details The <memory> header provides a class, called allocator<T>, that allocates
  *	a block of uninitialized memory that is intended to contain objects of type T, and

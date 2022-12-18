@@ -8,9 +8,10 @@
 	#include <vector>
 	namespace ft = std;
 #else
-	#include <map>
-	#include "../inc/stack.hpp"
-	#include "../inc/vector.hpp"
+	#include "../algorithms/rb_tree.hpp"
+	#include "../containers/map.hpp"
+	#include "../containers/stack.hpp"
+	#include "../containers/vector.hpp"
 #endif
 
 #include <stdlib.h>
@@ -381,29 +382,52 @@ void stack() {
 }
 
 //-------------------------------------------------------
+bool fncomp (char lhs, char rhs) {return lhs<rhs;}
+struct classcomp{
+	bool operator() (const char& lhs, const char& rhs) const {return lhs<rhs;}
+};
 
+void map_construct() {
+
+	ft::map<char,int> first;
+
+	first['a']=10;
+	first['b']=30;
+	first['c']=50;
+	first['d']=70;
+
+	ft::map<char,int> second (first.begin(),first.end());
+	ft::map<char,int> third (second);
+	ft::map<char,int,classcomp> fourth;
+
+	bool(*fn_pt)(char,char) = fncomp;
+	ft::map<char,int,bool(*)(char,char)> fifth (fn_pt);
+
+}
 
 int main() {
 
 	clock_t start, finish;
 	start = clock();
-	//STACK
-		stack(); 	// Print "3 2 4 77"
-		stack_operators();
+//	//STACK
+//		stack(); 	// Print "3 2 4 77"
+//		stack_operators();
+//
+//	//VECTOR
+//		test_vector();
+//		construct_vector();	
+//		vector_assignment();
+//		vector_begin_end();
+//		vector_reverse_iterator();
+//		vector_reserve();
+//		vector_erase();
+//		vector_swap();
+//		vector_at();
+//		vector_assign();
+//		vector_insert();
 
-	//VECTOR
-		test_vector();
-		construct_vector();	
-		vector_assignment();
-		vector_begin_end();
-		vector_reverse_iterator();
-		vector_reserve();
-		vector_erase();
-		vector_swap();
-		vector_at();
-		vector_assign();
-		vector_insert();
-
+		//MAP
+			map_construct();
 		finish = clock();
 
 		printf("Time taken: %f seconds", (double)(finish - start) / (double)CLOCKS_PER_SEC );
