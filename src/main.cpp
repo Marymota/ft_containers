@@ -427,7 +427,9 @@ int main() {
 //		vector_insert();
 
 		//MAP
-			map_construct();
+//			map_construct();
+		
+
 		finish = clock();
 
 		printf("Time taken: %f seconds", (double)(finish - start) / (double)CLOCKS_PER_SEC );
