@@ -382,26 +382,38 @@ void stack() {
 }
 
 //-------------------------------------------------------
-bool fncomp (char lhs, char rhs) {return lhs<rhs;}
-struct classcomp{
-	bool operator() (const char& lhs, const char& rhs) const {return lhs<rhs;}
-};
+//bool fncomp (char lhs, char rhs) {return lhs<rhs;}
+//struct classcomp{
+//	bool operator() (const char& lhs, const char& rhs) const {return lhs<rhs;}
+//};
+//
+//void map_construct() {
+//
+//	ft::map<char,int> first;
+//
+//	first['a']=10;
+//	first['b']=30;
+//	first['c']=50;
+//	first['d']=70;
+//
+//	ft::map<char,int> second (first.begin(),first.end());
+//	ft::map<char,int> third (second);
+//	ft::map<char,int,classcomp> fourth;
+//
+//	bool(*fn_pt)(char,char) = fncomp;
+//	ft::map<char,int,bool(*)(char,char)> fifth (fn_pt);
+//
+//}
 
-void map_construct() {
+void rb_tree() {
+	ft::Rb_tree<int> bst;
 
-	ft::map<char,int> first;
-
-	first['a']=10;
-	first['b']=30;
-	first['c']=50;
-	first['d']=70;
-
-	ft::map<char,int> second (first.begin(),first.end());
-	ft::map<char,int> third (second);
-	ft::map<char,int,classcomp> fourth;
-
-	bool(*fn_pt)(char,char) = fncomp;
-	ft::map<char,int,bool(*)(char,char)> fifth (fn_pt);
+	bst.insert(55);
+	bst.insert(40);
+	bst.insert(65);
+	bst.insert(60);
+	bst.insert(75);
+	bst.insert(57);
 
 }
 
@@ -428,8 +440,9 @@ int main() {
 
 		//MAP
 //			map_construct();
-		
 
+		rb_tree();
+		
 		finish = clock();
 
 		printf("Time taken: %f seconds", (double)(finish - start) / (double)CLOCKS_PER_SEC );
