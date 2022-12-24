@@ -2,6 +2,7 @@
 #define _RED_BLACK_TREE_HPP_
 
 #include <iostream>
+#include <string>
 
 namespace ft {
 
@@ -15,7 +16,7 @@ struct Rb_tree_Node {
 	Rb_tree_Node*		_parent;
 	Rb_tree_Node*		_left;
 	Rb_tree_Node*		_right;
-	Color					_color;
+	Color						_color;
 
 	Rb_tree_Node(	value_type key, Rb_tree_Node* parent,
 						Rb_tree_Node* left, Rb_tree_Node* right, enum Color color ) :
@@ -55,96 +56,74 @@ class Rb_tree {
 		// Algorithm to insert a node
 		void insert(value_type key) {
 			// Create a new empty node
-			Node new_node = _alloc.allocate(1);
-			_alloc.construct(new_node, node_type(key, NULL, _nil, _nil, _red));
+			Node node = _alloc.allocate(1);
+			_alloc.construct(node, node_type(key, NULL, _nil, _nil, _red));
 
-			new_node->_key = key;
+			node->_key = key;
+			node->_parent = _nil;
+			// Assign NUll to the left and right child of new_node
+			node->_left = _nil;
+			node->_right = _nil;
+			// All first added nodes are red
+			node->_color = _red;
 
-			new_node->_parent = NULL;
-			
-//			// Assign NUll to the left and right child of new_node
-			new_node->_left = _nil;
-			new_node->_right = _nil;
-//			// All first added nodes are red
-			new_node->_color = _red;
-
-			// 1. Let y be the leaf and x be the root of the tree
-			Node x = _root;	
-			Node y = 0;				
-			
-			//	2. chech if the tree is empty
-			//	3. repeat until a leaf is reached
+			// Let y be the leaf and x be the root of the tree
+			Node x = _root;
+			Node y = _nil;
+			// chech if the tree is empty
+			// repeat until a leaf is reached
 			while (x != _nil) {
-				std::cout << "node: " << new_node->_key << std::endl;
-				y = x;										
-				//	3.a. compare 	new_key with root_key
-				if (new_node->_key < x->_key) {
-					// 3.b. if new_key is less than root_key go left
+				y = x;
+				//	compare 	new_key with root_key
+				if (node->_key < x->_key) {
+					// if new_key is less than root_key go left
 					x = x->_left;
 				}
 				else {
-					// 3.c. if new_key is more than root_key go right
+					// if new_key is more than root_key go right
 					x = x->_right;
 				}
 			}
-			// 4. Assign the parent of the leaf as a parent of newNode
-			new_node->_parent = y;
-			// 5. If leaf_key is greater than new_key, make new_node as a right child
-			// 6. Else, make new_node as left child
-			if (y == 0)
-				_root = new_node;
-			else if (y->_key > new_node->_key)
-				y->_left = new_node;
+			// Assign the parent of the leaf as a parent of newNode
+			node->_parent = y;
+			// If leaf_key is greater than new_key, make new_node as a right child
+			// Else, make new_node as left child
+			if (y == _nil)
+				_root = node;
+			else if (y->_key > node->_key)
+				y->_left = node;
 			else
-				y->_right = new_node;
-			// 9. Call insert_fix() to mantain the property of red_black tree if violated
-			//insert_fix(new_node);
+				y->_right = node;
+			_root->_color = _black;
+			// Call insert_fix() to mantain the property of red_black tree if violated
+			if (node->_parent == NULL || node->_parent->_parent == NULL)
+				return;
+			insert_fix(node);
 		}
 
 		void insert_fix(Node node) {
-			if (node == _root) { node->_color == _black; return; }
-			
-			Node un; // uncle
-			while (node->_parent != 0 && node->_parent == _red)
-			{
-				Node gp = node->_parent->_parent; // grandparent
-				if (gp->_left == node->_parent) {
-					if (gp->_right != NULL) {
-						un = gp->_right;
-						color_flip(node, un, gp);
-						node = gp;
-					}
-					else if (gp->_right == NULL)
-					{
-						// if an uncle is Nil and all Nil's are black, we rotate
-						if (node == node->_parent->_left)
-							node = node->_parent;
-						else if (node == node->_parent->_right)
-							rotate_left(node);
-						else
-							rotate_right(node);
-					}
+			Node p  = node->_parent;
+			Node gp = node->_parent->_parent;
+			Node un;
+
+			if (gp->_left != _nil && gp->_left != node->_parent)
+				un = gp->_left;
+			else if (gp->_right != _nil && gp->_right != node->_parent)
+				un = gp->_right;
+			else
+				un = _nil;
+			if (node->_color == _red && p->_color == _red) {
+				if (un != _nil && un->_color == _red)
+					color_flip(node, un, gp);
+				else if (node == node->_parent->_left) {
+					rotate_right(node->_parent);
 				}
-				else if (gp->_right == node->_parent)
-				{
-					if (gp->_left != NULL) {
-						un = gp->_left;
-						color_flip(node, un, gp);
-						node = gp;
-					}
-					else if (gp->_left == NULL) {
-						if (node->_parent->_left == node) {
-							node = node->_parent;
-							rotate_right(node);
-						}
-						node = node->_parent;
-						rotate_left(node);
-					}
-				}
-				// Root must always be black
-				_root->_color= _black;
+				else
+					rotate_left(node);
 			}
+			_root->_color = _black;
 		}
+
 
 /**	@color_flip: If new_node is red and has a red parent and a red aunt we color flip
 */
@@ -154,6 +133,7 @@ class Rb_tree {
 				un->_color = _black;
 				gp->_color = _red;
 			}
+			std::cout << "color flip" << std::endl<< std::endl;
 		};
 		//	end color_flip
 
@@ -162,27 +142,35 @@ class Rb_tree {
  * 	@rotate_right: If new_node is on the right of its parent
 */
 		void rotate_right(Node node) {
-			if (node->_left == NULL)
-				return ;
+
+			std::cout << "rotate right" << std::endl;
+
+			Node tmp = node->_left;
+			node->_left = tmp->_right;
+			if (tmp->_right != _nil)
+				tmp->_right->_parent = node;
+			tmp->_parent = node->_parent;
+			if (node->_parent == NULL)
+				_root = tmp;
+			else if (node == node->_parent->_right)
+				node->_parent->_right = tmp;
 			else
-			{
-				Node tmp = node;
-				node->_parent = node->_left;
-				node->_right = NULL;
-				node->_left = NULL;
-				node = node->_parent;
-				node->_parent = node->_parent->_parent;
-				node->_left = NULL;
-				node->_right = tmp;
-			}
+				node->_parent->_left = tmp;
+			tmp->_right = node;
+			node->_parent = tmp;
 		};
 		//	end rotate
 
 		void rotate_left(Node node) {
+
+		std::cout << "rotate left" << std::endl;
+
 			if (node->_right == NULL)
 				return ;
 			else
 			{
+				if (_root == node)
+					_root = node->_right;
 				Node tmp = node;
 				node->_parent = node->_right;
 				node->_left = NULL;
@@ -191,9 +179,36 @@ class Rb_tree {
 				node->_parent = node->_parent->_parent;
 				node->_left = tmp;
 			}
+			if (node->_parent == NULL)
+				_root = node;
 		};
 		//	end rotate
 
+		void printHelper(Node _root, std::string indent, bool last) {
+			if (_root != _nil) {
+				std::cout << indent;
+				if (last) {
+					std::cout<<"R----";
+					indent += "    ";
+				} else {
+					std::cout << "L----";
+					indent += "|    ";
+				}
+				Color sColor = _root->_color?_red:_black;
+				if (sColor == _black)
+					std::cout << _root->_key << "(B)" << std::endl;
+				else
+					std::cout << _root->_key << "(R)" << std::endl;
+				printHelper(_root->_left, indent, false);
+				printHelper(_root->_right, indent, true);
+			}
+		}
+
+		void tree_print() {
+			if (_root) {
+				printHelper(_root, "", true);
+			}
+		}
 };
 
 }

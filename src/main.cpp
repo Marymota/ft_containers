@@ -408,13 +408,12 @@ void stack() {
 void rb_tree() {
 	ft::Rb_tree<int> bst;
 
-	bst.insert(55);
-	bst.insert(40);
-	bst.insert(65);
-	bst.insert(60);
-	bst.insert(75);
-	bst.insert(57);
-
+	bst.insert(3);
+	bst.insert(1);
+	bst.insert(5);
+	bst.insert(7);
+	bst.insert(6);
+	bst.tree_print();
 }
 
 int main() {
