@@ -53,8 +53,7 @@ class Rb_tree {
 		}
 		~Rb_tree() {delete _nil;}
 
-		Node tree_search(value_type key)
-		{
+		Node tree_search(value_type key) {
 			Node x = _root;
 			while (x != _nil && key != x->_key)
 				if (key < x->_key){ x = x->_left; }
@@ -62,16 +61,8 @@ class Rb_tree {
 			return x;
 		}
 
-		Node tree_minimum(){ 
-			Node x = _root;
-			while (x->_left != _nil){ x = x->_left; } return x;
-		}
-
-		Node tree_maximum(){
-			Node x = _root;
-			while (x->_right != _nil){ x = x->_right; } return x;
-		}
-
+		Node tree_minimum(){ Node x = _root; while (x->_left != _nil){ x = x->_left; } return x; }
+		Node tree_maximum(){ Node x = _root; while (x->_right != _nil){ x = x->_right; } return x; }
 		Node tree_minimum(Node x){ while (x->_left != _nil){ x = x->_left; } return x; }
 		Node tree_maximum(Node x){ while (x->_right != _nil){ x = x->_right; } return x; }
 
@@ -86,6 +77,7 @@ class Rb_tree {
 			return y;
 		}
 		
+		// The greatest node smaller than key
 		Node tree_predecessor(value_type key){
 			Node x = tree_search(key);
 			if (x == _nil){ return _nil; }
@@ -96,7 +88,7 @@ class Rb_tree {
 			return y;
 		}
 
-		Node tree_newnode(value_type key) {
+		Node create_node(value_type key) {
 			// Create a new empty node
 			Node node = _alloc.allocate(1);
 			_alloc.construct(node, node_type(key, NULL, _nil, _nil, _red));
@@ -111,31 +103,18 @@ class Rb_tree {
 			return node;
 		}
 
-		// Algorithm to insert a node
 		void tree_insert(value_type key) {
-
-			Node node = tree_newnode(key);
-			// Let y be the leaf and x be the root of the tree
+			Node node = create_node(key);
 			Node x = _root;
 			Node y = _nil;
-			// chech if the tree is empty
-			// repeat until a leaf is reached
 			while (x != _nil) {
 				y = x;
-				//	compare 	new_key with root_key
-				if (node->_key < x->_key) {
-					// if new_key is less than root_key go left
+				if (node->_key < x->_key)
 					x = x->_left;
-				}
-				else {
-					// if new_key is more than root_key go right
+				else
 					x = x->_right;
-				}
 			}
-			// Assign the parent of the leaf as a parent of newNode
 			node->_parent = y;
-			// If leaf_key is greater than new_key, make new_node as a right child
-			// Else, make new_node as left child
 			if (y == _nil)
 				_root = node;
 			else if (y->_key > node->_key)
@@ -143,9 +122,30 @@ class Rb_tree {
 			else
 				y->_right = node;
 			_root->_color = _black;
-			// Call insert_fix() to mantain the property of red_black tree if violated
+		// Call insert_fix() to mantain the property of red_black tree if violated
 		//	if (node->_parent != NULL && node->_parent->_parent != NULL)
 		//		tree_insert_fix(node);
+		}
+
+		Node tree_delete(value_type key) {
+			Node node = tree_search(key);
+			Node y = _nil;
+			Node x = _nil;
+
+			if(node->_left == _nil || node->_right == _nil){ y = node; }
+			else{ y = tree_sucessor(key); }
+
+			if(y->_left != _nil) { x = y->_left; }
+			else { x = y->_right; }
+
+			if(x != _nil) { x->_parent = y->_parent; }
+
+			if(y->_parent == _nil) { _root = x; }
+			else if (y == y->_parent->_left) { y->_parent->_left = x; }
+			else { y->_parent->_right = x; }
+
+			if (y != node) { node->_key = y->_key; }
+			return y;
 		}
 
 		void tree_insert_fix(Node& node) {

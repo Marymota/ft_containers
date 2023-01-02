@@ -420,6 +420,7 @@ void rb_tree() {
 	std::cout << "search: " << bst.tree_search(2)->_key << std::endl;
 	std::cout << "suc: " << bst.tree_sucessor(2)->_key << std::endl;
 	std::cout << "pre: " << bst.tree_predecessor(2)->_key << std::endl;
+	std::cout << "del: " << bst.tree_delete(12)->_key << std::endl;
 	bst.tree_print();
 }
 
