@@ -411,16 +411,10 @@ void rb_tree() {
 	bst.tree_insert(12);
 	bst.tree_insert(18);
 	bst.tree_insert(15);
-	bst.tree_insert(19);
-	bst.tree_insert(17);
-	bst.tree_insert(13);
-	bst.tree_insert(5);
-	bst.tree_insert(9);
-	bst.tree_insert(2);
-	std::cout << "search: " << bst.tree_search(2)->_key << std::endl;
-	std::cout << "suc: " << bst.tree_sucessor(2)->_key << std::endl;
-	std::cout << "pre: " << bst.tree_predecessor(2)->_key << std::endl;
-	std::cout << "del: " << bst.tree_delete(12)->_key << std::endl;
+	std::cout << "search: " << bst.tree_search(15)->_key << std::endl;
+	std::cout << "suc: " << bst.tree_sucessor(15)->_key << std::endl;
+	std::cout << "pre: " << bst.tree_predecessor(15)->_key << std::endl;
+	std::cout << "del: " << bst.tree_delete_node(15)->_key << std::endl;
 	bst.tree_print();
 }
 

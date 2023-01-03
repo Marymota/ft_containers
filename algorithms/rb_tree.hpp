@@ -31,10 +31,10 @@ struct Rb_tree_Node {
 template <class T, class Alloc = std::allocator<Rb_tree_Node<T> > > 
 class Rb_tree {
 
-	typedef T									value_type;
-	typedef Alloc								allocator_type;
+	typedef T														value_type;
+	typedef Alloc												allocator_type;
 	typedef Rb_tree_Node<value_type>		node_type;
-	typedef Rb_tree_Node<value_type>*	Node;
+	typedef Rb_tree_Node<value_type>*		Node;
 
 	private:
 		Node _root;
@@ -51,7 +51,13 @@ class Rb_tree {
 			_alloc.construct(_nil, node_type(value_type(), NULL, NULL, NULL, _black));
 			_root = _nil;
 		}
-		~Rb_tree() {delete _nil;}
+		
+		~Rb_tree() {
+			tree_clear(_root);
+			_alloc.destroy(_nil);
+			_alloc.deallocate(_nil, 1);
+		}
+
 
 		Node tree_search(value_type key) {
 			Node x = _root;
@@ -127,10 +133,10 @@ class Rb_tree {
 		//		tree_insert_fix(node);
 		}
 
-		Node tree_delete(value_type key) {
+		Node tree_delete_node(value_type key) {
 			Node node = tree_search(key);
-			Node y = _nil;
-			Node x = _nil;
+			Node y;
+			Node x; // the node child
 
 			if(node->_left == _nil || node->_right == _nil){ y = node; }
 			else{ y = tree_sucessor(key); }
@@ -281,6 +287,14 @@ class Rb_tree {
 			if (_root) {
 				tree_printHelper(_root, "", true);
 			}
+		}
+
+		void tree_clear(Node node) {
+			if (node == _nil)
+				return;
+			tree_clear(node->_left);
+			tree_clear(node->_right);
+			_root = _nil;
 		}
 };
 
