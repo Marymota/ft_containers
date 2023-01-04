@@ -54,10 +54,21 @@ class Rb_tree {
 		
 		~Rb_tree() {
 			tree_clear(_root);
+			_root = _nil;
 			_alloc.destroy(_nil);
 			_alloc.deallocate(_nil, 1);
 		}
 
+		void tree_clear(Node node) {
+			if (node == _nil)
+				return;
+			tree_clear(node->_left);
+			tree_clear(node->_right);
+	
+			_alloc.destroy(node);
+			_alloc.deallocate(node, 1);
+		}
+		
 
 		Node tree_search(value_type key) {
 			Node x = _root;
@@ -73,8 +84,7 @@ class Rb_tree {
 		Node tree_maximum(Node x){ while (x->_right != _nil){ x = x->_right; } return x; }
 
 		// The smallest node greater than key
-		Node tree_sucessor(value_type key){
-			Node x = tree_search(key);
+		Node tree_sucessor(Node x){
 			if (x == _nil){ return _nil; }
 			if (x->_right != _nil)
 				return tree_minimum(x->_right);
@@ -84,8 +94,7 @@ class Rb_tree {
 		}
 		
 		// The greatest node smaller than key
-		Node tree_predecessor(value_type key){
-			Node x = tree_search(key);
+		Node tree_predecessor(Node x){
 			if (x == _nil){ return _nil; }
 			if (x->_left != _nil)
 				return tree_maximum(x->_left);
@@ -133,24 +142,27 @@ class Rb_tree {
 		//		tree_insert_fix(node);
 		}
 
-		Node tree_delete_node(value_type key) {
-			Node node = tree_search(key);
+		Node tree_delete_node(Node node) {
 			Node y;
 			Node x; // the node child
 
 			if(node->_left == _nil || node->_right == _nil){ y = node; }
-			else{ y = tree_sucessor(key); }
+			else{ y = tree_sucessor(node); }
 
 			if(y->_left != _nil) { x = y->_left; }
 			else { x = y->_right; }
 
-			if(x != _nil) { x->_parent = y->_parent; }
+			if(x != _nil) {	x->_parent = y->_parent; }
 
 			if(y->_parent == _nil) { _root = x; }
 			else if (y == y->_parent->_left) { y->_parent->_left = x; }
 			else { y->_parent->_right = x; }
 
 			if (y != node) { node->_key = y->_key; }
+			else {
+				_alloc.destroy(node);
+				_alloc.deallocate(node, 1);
+			}
 			return y;
 		}
 
@@ -287,14 +299,6 @@ class Rb_tree {
 			if (_root) {
 				tree_printHelper(_root, "", true);
 			}
-		}
-
-		void tree_clear(Node node) {
-			if (node == _nil)
-				return;
-			tree_clear(node->_left);
-			tree_clear(node->_right);
-			_root = _nil;
 		}
 };
 

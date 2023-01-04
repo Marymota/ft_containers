@@ -408,13 +408,11 @@ void stack() {
 void rb_tree() {
 	ft::Rb_tree<int> bst;
 
-	bst.tree_insert(12);
-	bst.tree_insert(18);
 	bst.tree_insert(15);
-	std::cout << "search: " << bst.tree_search(15)->_key << std::endl;
-	std::cout << "suc: " << bst.tree_sucessor(15)->_key << std::endl;
-	std::cout << "pre: " << bst.tree_predecessor(15)->_key << std::endl;
-	std::cout << "del: " << bst.tree_delete_node(15)->_key << std::endl;
+//	std::cout << "search: " << bst.tree_search(15)->_key << std::endl;
+//	std::cout << "suc: " << bst.tree_sucessor(bst.tree_search(15))->_key << std::endl;
+//	std::cout << "pre: " << bst.tree_predecessor(bst.tree_search(15))->_key << std::endl;
+	std::cout << "del: " << bst.tree_delete_node(bst.tree_search(15))->_key << std::endl;
 	bst.tree_print();
 }
 
