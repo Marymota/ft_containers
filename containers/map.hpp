@@ -15,6 +15,7 @@
 #include "../inc/distance.hpp"
 #include "../inc/uninitialized_copy.hpp"
 #include "../inc/lex_compare.hpp"
+#include "../algorithms/rb_tree.hpp"
 #include "../inc/pair.hpp"
 
 namespace ft {
@@ -23,10 +24,7 @@ namespace ft {
 			/**	MAP: */
 		 /*-------*/
 // Class template
-template <class Key,																									// map::key_type
-					class T,																										// map::mapped
-					class Compare = std::less<Key>, 														// map::key_compare
-					class Alloc = std::allocator<ft::pair<const Key, T> > >	// map::allocator_type
+template <class Key,	class T,	class Compare = std::less<Key>,	class Alloc = std::allocator<ft::pair<const Key, T> > >	// map::allocator_type
 class map {
 
 	public:
@@ -52,25 +50,45 @@ class map {
 		typedef ft::reverse_iterator<const value_type>				const_reverse_iterator;
 
 	private:
-		Alloc _alloc;
-		Compare _compare;
+
+		typedef Rb_tree<value_type,	key_compare, allocator_type> tree_type;
+		
+		Alloc			_alloc;
+		Compare		_compare;
+		tree_type _tree;
+
+
+	//	typedef Rb_tree<value_type, key_compare, allocator_type> _tree;
+	//	typedef typename _tree::iterator iterator;
+	//	typedef typename _tree::iterator const_iterator;
+	//	typedef typename _tree::iterator reverse_iterator;
+	//	typedef typename _tree::iterator const_reverse_iterator;
 
 	public:
+
+		map() : _tree() {}
 		// DEFAULT CONSTRUCTOR
 		explicit map (const key_compare& comp = key_compare(),
-		const allocator_type& alloc = allocator_type()) :
-			_alloc(alloc),
-			_compare(comp)
+		const allocator_type& alloc = allocator_type()) : _tree()
 		{}
 
+		virtual
+		~map() {}
 
-	//	map (const map& other) {}
+//	/** ITERATORS:	***/
+//		iterator begin(){												return } 	
+//		const_iterator begin() const{						return _root ;}						
+//		iterator end(){													return _finish ;}									
+//		const_iterator end() const{							return _finish ;}						
+//		reverse_iterator rbegin(){							return reverse_iterator(end()) ;}	 				// end() of _finish? is it different?			
+//		const_reverse_iterator rbegin() const{ 	return const_reverse_iterator(end()) ;}	
+//		reverse_iterator rend(){								return reverse_iterator(begin());}			
+//		const_reverse_iterator rend() const{		return const_reverse_iterator(begin()) ;}
 
-	//	map& operator= (const map& other) {}
 
-	//	mapped_type& operator[] (const key_type& k) {
-	//		return insert(ft::make_pair(key, T())).first->second;
-	//	}
+	bool pair_compare(const value_type& x, const value_type& y) const {
+		return x->first, y->first;
+	}
 
 };
 }

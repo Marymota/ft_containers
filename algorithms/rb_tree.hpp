@@ -1,6 +1,7 @@
 #ifndef _RED_BLACK_TREE_HPP_
 #define _RED_BLACK_TREE_HPP_
 
+#include <cstddef>
 #include <iostream>
 #include <string>
 
@@ -28,13 +29,33 @@ struct Rb_tree_Node {
 	{}
 };
 
-template <class T, class Alloc = std::allocator<Rb_tree_Node<T> > > 
+template <class T, class compare = std::less<T>, class Alloc = std::allocator<Rb_tree_Node<T> > > 
 class Rb_tree {
 
 	typedef T														value_type;
 	typedef Alloc												allocator_type;
 	typedef Rb_tree_Node<value_type>		node_type;
 	typedef Rb_tree_Node<value_type>*		Node;
+
+	template<typename Ti>
+	struct Rb_tree_iterator
+	{
+		typedef Ti		value_type;
+		typedef Ti& 	reference;
+		typedef Ti*		pointer;
+
+		typedef std::bidirectional_iterator_tag	iterator_category;
+		typedef ptrdiff_t										difference_type;
+
+		typedef Rb_tree_iterator<Ti>	ptr;
+		typedef	Node	node_ptr;
+
+		Node _node;
+
+		Rb_tree_iterator() : _node() {}
+
+		explicit Rb_tree_iterator(Node x) : _node(x) {}
+	};
 
 	private:
 		Node _root;
@@ -67,9 +88,9 @@ class Rb_tree {
 	
 			_alloc.destroy(node);
 			_alloc.deallocate(node, 1);
+
 		}
 		
-
 		Node tree_search(value_type key) {
 			Node x = _root;
 			while (x != _nil && key != x->_key)
@@ -103,7 +124,7 @@ class Rb_tree {
 			return y;
 		}
 
-		Node create_node(value_type key) {
+		Node create_node(const value_type key) {
 			// Create a new empty node
 			Node node = _alloc.allocate(1);
 			_alloc.construct(node, node_type(key, NULL, _nil, _nil, _red));
@@ -113,12 +134,11 @@ class Rb_tree {
 			// Assign NUll to the left and right child of new_node
 			node->_left = _nil;
 			node->_right = _nil;
-			// All first added nodes are red
-			node->_color = _red;
+
 			return node;
 		}
 
-		void tree_insert(value_type key) {
+		void tree_insert(const value_type key) {
 			Node node = create_node(key);
 			Node x = _root;
 			Node y = _nil;
@@ -136,17 +156,17 @@ class Rb_tree {
 				y->_left = node;
 			else
 				y->_right = node;
-			_root->_color = _black;
-		// Call insert_fix() to mantain the property of red_black tree if violated
-		//	if (node->_parent != NULL && node->_parent->_parent != NULL)
-		//		tree_insert_fix(node);
+			//_root->_color = _black;
+		 	// Call insert_fix() to mantain the property of red_black tree if violated
+			//if (node->_parent != NULL && node->_parent->_parent != NULL)
+			//	tree_insert_fix(node);
 		}
 
 		Node tree_delete_node(Node node) {
 			Node y;
 			Node x; // the node child
 
-			if(node->_left == _nil || node->_right == _nil){ y = node; }
+			if(node->_left == _nil || node->_right == _nil){y = node; }
 			else{ y = tree_sucessor(node); }
 
 			if(y->_left != _nil) { x = y->_left; }
@@ -158,11 +178,8 @@ class Rb_tree {
 			else if (y == y->_parent->_left) { y->_parent->_left = x; }
 			else { y->_parent->_right = x; }
 
-			if (y != node) { node->_key = y->_key; }
-			else {
-				_alloc.destroy(node);
-				_alloc.deallocate(node, 1);
-			}
+			if (y != node) { node->_key = y->_key; } 
+			else { _alloc.deallocate(node, 1); } // valgrind error because of this deallocation
 			return y;
 		}
 
@@ -193,9 +210,9 @@ class Rb_tree {
 					tree_rotate_right(node);
 				else
 					tree_rotate_left(node);
-				//recolor(node->_parent);
-				if (node->_color == _red && (node->_left->_color == _red || node->_right->_color == _red))
-					tree_insert_fix(node);
+			//	tree_recolor(node->_parent);
+			//	if (node->_color == _red && (node->_left->_color == _red || node->_right->_color == _red))
+			//		tree_insert_fix(node);
 			}
 		}
 
@@ -240,7 +257,7 @@ class Rb_tree {
  * 	@rotate_left: If new_node is on the right of its parent
  * 	@rotate_right: If new_node is on the right of its parent
 */
-		void tree_rotate_right(Node& node) {
+		void tree_rotate_right(Node node) {
 
 			std::cout << "rotate right" << std::endl;
 			

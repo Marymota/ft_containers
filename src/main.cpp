@@ -409,6 +409,10 @@ void rb_tree() {
 	ft::Rb_tree<int> bst;
 
 	bst.tree_insert(15);
+	bst.tree_insert(8);
+	bst.tree_insert(5);
+	bst.tree_insert(12);
+	bst.tree_insert(2);
 //	std::cout << "search: " << bst.tree_search(15)->_key << std::endl;
 //	std::cout << "suc: " << bst.tree_sucessor(bst.tree_search(15))->_key << std::endl;
 //	std::cout << "pre: " << bst.tree_predecessor(bst.tree_search(15))->_key << std::endl;
