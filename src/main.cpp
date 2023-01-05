@@ -382,43 +382,57 @@ void stack() {
 }
 
 //-------------------------------------------------------
-//bool fncomp (char lhs, char rhs) {return lhs<rhs;}
-//struct classcomp{
-//	bool operator() (const char& lhs, const char& rhs) const {return lhs<rhs;}
-//};
-//
-//void map_construct() {
-//
-//	ft::map<char,int> first;
-//
-//	first['a']=10;
-//	first['b']=30;
-//	first['c']=50;
-//	first['d']=70;
-//
-//	ft::map<char,int> second (first.begin(),first.end());
-//	ft::map<char,int> third (second);
-//	ft::map<char,int,classcomp> fourth;
-//
-//	bool(*fn_pt)(char,char) = fncomp;
-//	ft::map<char,int,bool(*)(char,char)> fifth (fn_pt);
-//
-//}
+bool fncomp (char lhs, char rhs) {return lhs<rhs;}
+struct classcomp{
+	bool operator() (const char& lhs, const char& rhs) const {return lhs<rhs;}
+};
 
-void rb_tree() {
-	ft::Rb_tree<int> bst;
+void map_access_mapped() {
+	ft::map<char, std::string> mymap;
 
-	bst.tree_insert(15);
-	bst.tree_insert(8);
-	bst.tree_insert(5);
-	bst.tree_insert(12);
-	bst.tree_insert(2);
+	mymap['a']="an element";
+	mymap['b']="another element";
+	mymap['c']=mymap['b'];
+
+	std::cout << "mymap['a'] is " << '\n';
+	std::cout << "mymap['b'] is " << '\n';
+	std::cout << "mymap['c'] is " << '\n';
+	std::cout << "mymap['d'] is " << '\n';
+	std::cout << "mymap now contains " << mymap.size() << " elements.\n";
+}
+
+void map_construct() {
+
+	ft::map<char,int> first;
+
+	first['a']=10;
+	first['b']=30;
+	first['c']=50;
+	first['d']=70;
+
+	ft::map<char,int> second (first.begin(),first.end());
+	ft::map<char,int> third (second);
+	ft::map<char,int,classcomp> fourth;
+
+	bool(*fn_pt)(char,char) = fncomp;
+	ft::map<char,int,bool(*)(char,char)> fifth (fn_pt);
+
+}
+
+//void rb_tree() {
+//	ft::Rb_tree<int> bst;
+//
+//	bst.tree_insert(15);
+//	bst.tree_insert(8);
+//	bst.tree_insert(5);
+//	bst.tree_insert(12);
+//	bst.tree_insert(2);
 //	std::cout << "search: " << bst.tree_search(15)->_key << std::endl;
 //	std::cout << "suc: " << bst.tree_sucessor(bst.tree_search(15))->_key << std::endl;
 //	std::cout << "pre: " << bst.tree_predecessor(bst.tree_search(15))->_key << std::endl;
-	std::cout << "del: " << bst.tree_delete_node(bst.tree_search(15))->_key << std::endl;
-	bst.tree_print();
-}
+//	std::cout << "del: " << bst.tree_delete_node(bst.tree_search(15))->_value << std::endl;
+//	bst.tree_print();
+//}
 
 int main() {
 
@@ -442,9 +456,9 @@ int main() {
 //		vector_insert();
 
 		//MAP
-//			map_construct();
+			map_construct();
 
-		rb_tree();
+//		rb_tree();
 		
 		finish = clock();
 

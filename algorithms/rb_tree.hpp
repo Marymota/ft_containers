@@ -2,83 +2,134 @@
 #define _RED_BLACK_TREE_HPP_
 
 #include <cstddef>
+#include <memory>
 #include <iostream>
-#include <string>
+
+#include "../inc/bidirectional_iterator.hpp"
+#include "../inc/reverse_iterator.hpp"
+#include "../inc/pair.hpp"
 
 namespace ft {
 
-enum Color { _red = 1, _black = 0};
+	enum Color { RED, BLACK };
 
-template <class T>
+template<typename T>
 struct Rb_tree_Node {
-	
-	typedef T			value_type;
-	value_type			_key;
-	Rb_tree_Node*		_parent;
-	Rb_tree_Node*		_left;
-	Rb_tree_Node*		_right;
-	Color						_color;
 
-	Rb_tree_Node(	value_type key, Rb_tree_Node* parent,
-						Rb_tree_Node* left, Rb_tree_Node* right, enum Color color ) :
-		_key(key),
-		_parent(parent),
-		_left(left),
-		_right(right),
-		_color(color)
-	{}
+	typedef T value_type;
+	typedef Rb_tree_Node<value_type>*	Node;
+
+	value_type	_data;
+	Node				_parent;
+	Node				_left;
+	Node				_right;
+	Color				_color;
+
+	// Constructs a new node with all elements initialized
+	Rb_tree_Node(	const value_type data, Node parent, Node left, Node right, Color color) :
+								_data(data),
+								_parent(parent),
+								_left(left),
+								_right(right),
+								_color(color) {}
 };
 
-template <class T, class compare = std::less<T>, class Alloc = std::allocator<Rb_tree_Node<T> > > 
+template<typename T>
+	class Rb_tree_iterator {
+
+		typedef Rb_tree_Node<T> Node;
+		typedef Rb_tree_iterator<T> Iter;
+	
+	private:
+		Node* node;
+	
+	public:
+		Rb_tree_iterator(Node* n = 0) : node(n) {}
+		T& operator*(){ return node->_value; }
+		T* operator->(){ return &(operator*()); }
+
+		Iter& operator++(){ increment(); return *this; }
+		Iter	operator++(int){ Iter tmp = *this; increment(); return tmp; }
+		Iter& operator--(){	decrement(); return *this; }
+		Iter	operator--(int){ Iter tmp = *this; decrement(); return tmp; }
+
+		void increment(){
+			if (node->_right) {
+				node = node->_right;
+				while (node->_left){ node = node->_left; }
+			}
+			else {
+				Node* parent = node->_parent;
+				while (parent->_right == node) {
+					node = parent;
+					parent = node->_parent;
+				}
+				if (node->_right != parent)
+					node = parent;
+			}
+		}
+
+		void decrement(){
+			if (node->_left) {
+				node = node->_left;
+				while (node->_right){ node = node->_right; }
+			}
+			else {
+				Node* parent = node->_parent;
+				while (parent->_left == node) {
+					node = parent;
+					parent = node->_parent;
+				}
+				if (node->_left != parent)
+					node = parent;
+			}
+		}
+	};
+
+template <class Key, class Val, class KeyOfValue,
+					class Compare, class Alloc = std::allocator<Val> >
 class Rb_tree {
 
-	typedef T														value_type;
-	typedef Alloc												allocator_type;
-	typedef Rb_tree_Node<value_type>		node_type;
-	typedef Rb_tree_Node<value_type>*		Node;
+	typedef T															value_type;
+	typedef Alloc													allocator_type;
+	typedef Rb_tree_Node<value_type>			node_type;
+	typedef Rb_tree_Node<value_type>*			Node;
+	typedef Rb_tree_iterator<value_type>	Iter;
 
-	template<typename Ti>
-	struct Rb_tree_iterator
-	{
-		typedef Ti		value_type;
-		typedef Ti& 	reference;
-		typedef Ti*		pointer;
-
-		typedef std::bidirectional_iterator_tag	iterator_category;
-		typedef ptrdiff_t										difference_type;
-
-		typedef Rb_tree_iterator<Ti>	ptr;
-		typedef	Node	node_ptr;
-
-		Node _node;
-
-		Rb_tree_iterator() : _node() {}
-
-		explicit Rb_tree_iterator(Node x) : _node(x) {}
-	};
+	typedef< typename	allocator_type::template
+										rebind<typename ft::Rb_tree_Node<ft::pair<const Key, T> > >::other
+										node_allocator_type;
 
 	private:
 		Node _root;
 		Node _nil;
 		allocator_type _alloc;
+		size_t _size;
 
 	public:	
 		Rb_tree(allocator_type const& alloc = allocator_type()) :
 			_root(NULL),
 			_nil(NULL),
-			_alloc(alloc)
+			_alloc(alloc),
+			_size(0)
 		{
 			_nil = _alloc.allocate(1);
-			_alloc.construct(_nil, node_type(value_type(), NULL, NULL, NULL, _black));
+			_alloc.construct(_nil, node_type(value_type(), NULL, NULL, NULL, BLACK));
 			_root = _nil;
 		}
 		
 		~Rb_tree() {
 			tree_clear(_root);
+			_size = 0;
 			_root = _nil;
 			_alloc.destroy(_nil);
 			_alloc.deallocate(_nil, 1);
 		}
+	
+		Iter begin(){ return Iter(_root->_left); }
+		Iter end(){ return Iter(_root); }
+		size_t size()const{ return _size; }
+		bool empty()const{ return _root == _nil; }
 
 		void tree_clear(Node node) {
 			if (node == _nil)
@@ -88,7 +139,6 @@ class Rb_tree {
 	
 			_alloc.destroy(node);
 			_alloc.deallocate(node, 1);
-
 		}
 		
 		Node tree_search(value_type key) {
@@ -127,7 +177,7 @@ class Rb_tree {
 		Node create_node(const value_type key) {
 			// Create a new empty node
 			Node node = _alloc.allocate(1);
-			_alloc.construct(node, node_type(key, NULL, _nil, _nil, _red));
+			_alloc.construct(node, node_type(key, NULL, _nil, _nil, RED));
 
 			node->_key = key;
 			node->_parent = _nil;
@@ -156,7 +206,7 @@ class Rb_tree {
 				y->_left = node;
 			else
 				y->_right = node;
-			//_root->_color = _black;
+			//_root->_color = BLACK;
 		 	// Call insert_fix() to mantain the property of red_black tree if violated
 			//if (node->_parent != NULL && node->_parent->_parent != NULL)
 			//	tree_insert_fix(node);
@@ -201,17 +251,17 @@ class Rb_tree {
 			std::cout << "gp: " << gp->_key << std::endl;
 			std::cout << "p: " << p->_key << std::endl;
 
-			if (node->_color == _red && p->_color == _red)
+			if (node->_color == RED && p->_color == RED)
 			{
 
-				if (un != _nil && un->_color == _red)
+				if (un != _nil && un->_color == RED)
 					tree_color_flip(node, un, gp);
 				else if (node == node->_parent->_left)
 					tree_rotate_right(node);
 				else
 					tree_rotate_left(node);
 			//	tree_recolor(node->_parent);
-			//	if (node->_color == _red && (node->_left->_color == _red || node->_right->_color == _red))
+			//	if (node->_color == RED && (node->_left->_color == RED || node->_right->_color == RED))
 			//		tree_insert_fix(node);
 			}
 		}
@@ -220,24 +270,24 @@ class Rb_tree {
 	*/
 		void tree_recolor (Node node) {
 			std::cout << "node: " << node->_key << std::endl;
-			_root->_color = _black;
+			_root->_color = BLACK;
 			if (node == _root) {
 				if (node->_left != _nil)
-					node->_left->_color = _red;
+					node->_left->_color = RED;
 				if (node->_right != _nil)
-					node->_right->_color = _red;
-			else if (node->_color == _red)
+					node->_right->_color = RED;
+			else if (node->_color == RED)
 			{
 				if (node->_left != _nil)
-					node->_left->_color = _black;
+					node->_left->_color = BLACK;
 				if (node->_right != _nil)
-					node->_right->_color = _black;
+					node->_right->_color = BLACK;
 			}
 		}	
-		if (node->_color == _red) {
-			node->_color = _black;
-			node->_left->_color = _red;
-			node->_right->_color = _red;
+		if (node->_color == RED) {
+			node->_color = BLACK;
+			node->_left->_color = RED;
+			node->_right->_color = RED;
 		}
 	} // end recolor
 
@@ -245,10 +295,10 @@ class Rb_tree {
 */
 		void tree_color_flip(Node node, Node un, Node gp) {
 			std::cout << "color flip" << std::endl<< std::endl;
-			if (un->_color == _red) {
-				node->_parent->_color = _black;
-				un->_color = _black;
-				gp->_color = _red;
+			if (un->_color == RED) {
+				node->_parent->_color = BLACK;
+				un->_color = BLACK;
+				gp->_color = RED;
 			}
 		};
 		//	end color_flip
@@ -303,7 +353,7 @@ class Rb_tree {
 					indent += "|    ";
 				}
 				Color sColor = _root->_color;
-				if (sColor == _black)
+				if (sColor == BLACK)
 					std::cout << _root->_key << "(B)" << std::endl;
 				else
 					std::cout << _root->_key << "(R)" << std::endl;
