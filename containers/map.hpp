@@ -25,8 +25,8 @@ namespace ft {
 			/**	MAP: */
 		 /*-------*/
 // Class template
-template <class Key,	class T,	class Compare = std::less<Key>,
-					class Alloc = std::allocator<ft::pair<const Key, T> > >	// map::allocator_type
+template <class Key,	class Tp,	class Compare = std::less<Key>,
+					class Alloc = std::allocator<ft::pair<const Key, Tp> > >
 class map {
 
 	public:
@@ -36,27 +36,11 @@ class map {
  /*----------------*/
 
 		// Template parameters
-		typedef Key				key_type;
-		typedef T					mapped_type;
-		typedef Compare		key_compare;
-		typedef Alloc			allocator_type;
-
-		typedef ft::pair<const Key, T>												value_type;
-		typedef size_t																				size_type;
-		typedef ptrdiff_t																			difference_type;
-		typedef value_type&																		reference;
-		typedef const value_type&															const_reference;
-		typedef typename Alloc::pointer												pointer;
-		typedef typename Alloc::const_pointer									const_pointer;
-		typedef ft::bidirectional_iterator<value_type>				iterator;
-		typedef ft::bidirectional_iterator<const value_type>	const_iterator;
-		typedef ft::reverse_iterator<value_type>							reverse_iterator;
-		typedef ft::reverse_iterator<const value_type>				const_reverse_iterator;
-
-
-		typedef typename	allocator_type::template rebind<value_type>::other Pair_alloc_type;
-		typedef Rb_tree<key_type, value_type, std::_Select1st<value_type>, key_compare> tree_type;
-
+		typedef Key											key_type;
+		typedef Tp											data_type;
+		typedef Tp											mapped_type;
+		typedef Compare									key_compare;
+		typedef ft::pair<const Key, Tp>	value_type;
 
 /** @value_compare: std::map::value_compare is a function object that compares 
  * objects of type std::map::value_type (key-value pairs) by comparing of the
@@ -71,28 +55,46 @@ class map {
  * 		constructor -> new value_compare object
  * 		operator() -> compares two values of type value_type
  * */
-		class value_compare : public std::binary_function<value_type, value_type, bool> {
-			friend class map<Key, T, Compare, Alloc>;
-			// Initializes the internal instance of the comparator to c
-			protected:
-				Compare comp;
-				value_compare(Compare c) : comp(c) { }
-			public:
-				// Compares the given values by calling the stored comparator 'comp'
-				bool operator()( const value_type& lhs, const value_type& rhs ) const {
-					return comp(lhs.first, rhs.first); }
+		class value_compare
+			: public std::binary_function<value_type, value_type, bool> {
+		friend class map<Key, Tp, Compare, Alloc>;
+		// Initializes the internal instance of the comparator to c
+		protected:
+			Compare comp;
+			value_compare(Compare c) : comp(c) { }
+		public:
+			// Compares the given values by calling the stored comparator 'comp'
+			bool operator()( const value_type& lhs, const value_type& rhs ) const {
+				return comp(lhs.first, rhs.first);
+			}
 		};
 
-private:
-		allocator_type	_alloc;
-		tree_type				_tree;
-		Compare					_comp;
+	private:
+		/**	@red_black_tree: representation of a map as a red black tree */
+		typedef Rb_tree<Key, value_type,
+										std::_Select1st<value_type>, Alloc> rbt_type;
+		rbt_type rbt;
 
 	public:
+		typedef typename rbt_type::pointer							pointer;
+		typedef typename rbt_type::const_pointer				const_pointer;
+		typedef typename rbt_type::reference						reference;
+		typedef typename rbt_type::const_reference			const_reference;
+		typedef typename rbt_type::iterator							iterator;
+		typedef typename rbt_type::const_iterator				const_iterator;
+		typedef typename rbt_type::reverse_iterator			reverse_iterator;
+		typedef typename rbt_type::reverse_iterator			const_reverse_iterator;
+		typedef typename rbt_type::difference_type			difference_type;
+		typedef typename rbt_type::size_type						size_type;
+		typedef typename rbt_type::allocator_type				allocator_type;
 
+	private:
+		allocator_type value_alloc;
+
+	public:
 		//default constructor
 		explicit map (const key_compare& comp = key_compare(),
-		const allocator_type& alloc = allocator_type()) : _alloc(alloc), _tree(), _comp(comp) {}
+		const allocator_type& alloc = allocator_type()) : rbt(comp, alloc){	}
 
 		// Range constructor
 		template<	class InputIterator>
@@ -137,7 +139,7 @@ private:
 
 		// Observers
 		key_compare key_comp() const;
-		value_compare value_comp() const { return value_compare(_tree.key_comp());	}
+		value_compare value_comp() const { return value_compare(0);	}
 
 		// Operations
 		iterator find (const key_type& k);
@@ -151,7 +153,7 @@ private:
 		pair<const_iterator, const_iterator> equal_range (const key_type& k) const;
 
 		// Allocator
-		allocator_type get_allocator() const { return _alloc.get_allocator(); }
+		allocator_type get_allocator() const;
 };
 }
 

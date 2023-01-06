@@ -5,113 +5,112 @@
 #include <memory>
 #include <iostream>
 
+#include "../inc/iterator_traits.hpp"
 #include "../inc/bidirectional_iterator.hpp"
 #include "../inc/reverse_iterator.hpp"
 #include "../inc/pair.hpp"
 
 namespace ft {
 
-	enum Color { RED, BLACK };
+	enum Color { RED = false, BLACK = true };
 
-template<typename T>
-struct Rb_tree_Node {
+template <class Val>
+struct Rb_tree_node {
 
-	typedef T value_type;
-	typedef Rb_tree_Node<value_type>*	Node;
+	typedef Rb_tree_node*	Node;
+	typedef Rb_tree_node<Val>* Link_type;
+	Val value_field;
 
-	value_type	_data;
-	Node				_parent;
-	Node				_left;
-	Node				_right;
-	Color				_color;
+	Node	_parent;
+	Node	_left;
+	Node	_right;
+	Color	_color;
 
-	// Constructs a new node with all elements initialized
-	Rb_tree_Node(	const value_type data, Node parent, Node left, Node right, Color color) :
-								_data(data),
-								_parent(parent),
-								_left(left),
-								_right(right),
-								_color(color) {}
+	static Node minimum(Node x){ while (x->_left != 0){ x = x->_left; } return x; }
+	static Node maximum(Node x){ while (x->_right != 0){ x = x->_right; } return x; }
 };
 
-template<typename T>
-	class Rb_tree_iterator {
+template <class Val>
+struct Rb_tree_Iterator{
 
-		typedef Rb_tree_Node<T> Node;
-		typedef Rb_tree_iterator<T> Iter;
-	
-	private:
-		Node* node;
-	
-	public:
-		Rb_tree_iterator(Node* n = 0) : node(n) {}
-		T& operator*(){ return node->_value; }
-		T* operator->(){ return &(operator*()); }
+	typedef Val 																					value_type;
 
-		Iter& operator++(){ increment(); return *this; }
-		Iter	operator++(int){ Iter tmp = *this; increment(); return tmp; }
-		Iter& operator--(){	decrement(); return *this; }
-		Iter	operator--(int){ Iter tmp = *this; decrement(); return tmp; }
+	typedef Rb_tree_node<value_type> 											node_type;
+	typedef Rb_tree_node<value_type>*											Node;
+	typedef bidirectional_iterator_tag										iterator_category;
+	typedef ft::bidirectional_iterator<node_type>					iterator;
+	typedef ft::bidirectional_iterator<const node_type>		const_iterator;
+	Node node;
 
-		void increment(){
-			if (node->_right) {
-				node = node->_right;
-				while (node->_left){ node = node->_left; }
-			}
-			else {
-				Node* parent = node->_parent;
-				while (parent->_right == node) {
-					node = parent;
-					parent = node->_parent;
-				}
-				if (node->_right != parent)
-					node = parent;
-			}
+	Rb_tree_Iterator(Node x) {node = x;}
+
+	void increment(){
+		if (node->_right) {
+			node = node->_right;
+			while (node->_left){ node = node->_left; }
 		}
-
-		void decrement(){
-			if (node->_left) {
-				node = node->_left;
-				while (node->_right){ node = node->_right; }
+		else {
+			Node* parent = node->_parent;
+			while (parent->_right == node) {
+				node = parent;
+				parent = node->_parent;
 			}
-			else {
-				Node* parent = node->_parent;
-				while (parent->_left == node) {
-					node = parent;
-					parent = node->_parent;
-				}
-				if (node->_left != parent)
-					node = parent;
-			}
+			if (node->_right != parent)
+				node = parent;
 		}
-	};
+	}
 
-template <class Key, class Val, class KeyOfValue,
-					class Compare, class Alloc = std::allocator<Val> >
+	void decrement(){
+		if (node->_color == RED && node->_parent->_parent == node)
+			node = node->_right;
+		else if (node->_left) {
+			node = node->_left;
+			while (node->_right){ node = node->_right; }
+		}
+		else {
+			Node* parent = node->_parent;
+			while (parent->_left == node) {
+				node = parent;
+				parent = node->_parent;
+			}
+			if (node->_left != parent)
+				node = parent;
+		}
+	}
+};
+
+template <class Key, class Val,	class Compare = std::less<Key>, class Alloc = std::allocator<Val> >
 class Rb_tree {
 
-	typedef T															value_type;
-	typedef Alloc													allocator_type;
-	typedef Rb_tree_Node<value_type>			node_type;
-	typedef Rb_tree_Node<value_type>*			Node;
-	typedef Rb_tree_iterator<value_type>	Iter;
+protected:
+	typedef Rb_tree_node<Val>* 											Node;
+	typedef Rb_tree_node<Val>												node_type;
 
-	typedef< typename	allocator_type::template
-										rebind<typename ft::Rb_tree_Node<ft::pair<const Key, T> > >::other
-										node_allocator_type;
+public:
+	typedef Val																			value_type;
+	typedef Compare																	key_compare;
+	typedef value_type* 														pointer;
+	typedef const value_type* 											const_pointer;
+	typedef value_type&															reference;
+	typedef const value_type& 											const_reference;
+	typedef size_t																	size_type;
+	typedef ptrdiff_t 															difference_type;
+	typedef Alloc 																	allocator_type;
+	typedef ft::Rb_tree_Iterator<value_type> 				iterator;
+	typedef ft::Rb_tree_Iterator<const value_type> 	const_iterator;
+	typedef ft::reverse_iterator<value_type> 				reverse_iterator;
+	typedef ft::reverse_iterator<const value_type> 	const_reverse_iterator;
 
-	private:
-		Node _root;
-		Node _nil;
-		allocator_type _alloc;
-		size_t _size;
-
+private:
+	Node 						_root;
+	Node 						_nil;
+	allocator_type 	_alloc;
+	
 	public:	
-		Rb_tree(allocator_type const& alloc = allocator_type()) :
+		Rb_tree(const key_compare& comp, allocator_type const& alloc = allocator_type()) :
 			_root(NULL),
 			_nil(NULL),
-			_alloc(alloc),
-			_size(0)
+			_alloc(alloc)
 		{
 			_nil = _alloc.allocate(1);
 			_alloc.construct(_nil, node_type(value_type(), NULL, NULL, NULL, BLACK));
@@ -120,15 +119,14 @@ class Rb_tree {
 		
 		~Rb_tree() {
 			tree_clear(_root);
-			_size = 0;
 			_root = _nil;
 			_alloc.destroy(_nil);
 			_alloc.deallocate(_nil, 1);
 		}
 	
-		Iter begin(){ return Iter(_root->_left); }
-		Iter end(){ return Iter(_root); }
-		size_t size()const{ return _size; }
+		iterator begin(){ return iterator(_root->_left); }
+		iterator end(){ return iterator(_root); }
+		size_t size()const{ return 0; }
 		bool empty()const{ return _root == _nil; }
 
 		void tree_clear(Node node) {
