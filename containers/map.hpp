@@ -53,11 +53,10 @@ class map {
 		typedef ft::reverse_iterator<value_type>							reverse_iterator;
 		typedef ft::reverse_iterator<const value_type>				const_reverse_iterator;
 
+
+		typedef typename	allocator_type::template rebind<value_type>::other Pair_alloc_type;
 		typedef Rb_tree<key_type, value_type, std::_Select1st<value_type>, key_compare> tree_type;
 
-//		typedef typename	allocator_type::template rebind<typename ft::Rb_tree<Key,
-//											ft::pair<const Key, const T> > >::other node_allocator_type;
-//
 
 /** @value_compare: std::map::value_compare is a function object that compares 
  * objects of type std::map::value_type (key-value pairs) by comparing of the
@@ -87,23 +86,23 @@ class map {
 private:
 		allocator_type	_alloc;
 		tree_type				_tree;
+		Compare					_comp;
 
 	public:
 
 		//default constructor
 		explicit map (const key_compare& comp = key_compare(),
-		const allocator_type& alloc = allocator_type()) : _alloc(alloc), _tree(comp, alloc) {}
+		const allocator_type& alloc = allocator_type()) : _alloc(alloc), _tree(), _comp(comp) {}
 
 		// Range constructor
-		template<	class InputIterator> map(InputIterator first, InputIterator last,
-							const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) :
-							_alloc(alloc), _tree(comp, alloc) {}
+		template<	class InputIterator>
+		map(InputIterator first, InputIterator last,
+				const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type());
 
 		// copy constructor					
-		map (const map& x) {}
+		map (const map& x);
 
 		virtual ~map() {}
-
 
 		map& operator= (const map& x) { return *this;	}
 
