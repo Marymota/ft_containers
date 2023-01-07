@@ -13,10 +13,12 @@ template <class T1, class T2>
 struct pair {
 
 	public:
+		// Member types
 		typedef T1	first_type;		//	type of the first template parameter
 		typedef T2	second_type;	//	type of the second template parameter
 
-		T1 first;		// first value in pair
+		// Member objects
+		T1 first;	// first value in pair
 		T2 second;	// second value in pair
 
 		// default constructor (constructs a pair object)
@@ -37,6 +39,9 @@ struct pair {
 			return *this;
 		}
 };
+
+
+// need to add relational operators 
 
 template <class T1, class T2>
 pair<T1,T2> make_pair (T1 x, T2 y) { return ( pair<T1,T2>(x,y) ); }

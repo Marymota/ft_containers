@@ -21,8 +21,8 @@
 
 namespace ft {
 
-			 /*-------*/
-			/**	MAP: */
+		/*-------*/
+		/**	MAP: */
 		 /*-------*/
 // Class template
 template <class Key,	class Tp,	class Compare = std::less<Key>,
@@ -76,17 +76,17 @@ class map {
 		rbt_type rbt;
 
 	public:
-		typedef typename rbt_type::pointer							pointer;
-		typedef typename rbt_type::const_pointer				const_pointer;
-		typedef typename rbt_type::reference						reference;
-		typedef typename rbt_type::const_reference			const_reference;
-		typedef typename rbt_type::iterator							iterator;
-		typedef typename rbt_type::const_iterator				const_iterator;
-		typedef typename rbt_type::reverse_iterator			reverse_iterator;
-		typedef typename rbt_type::reverse_iterator			const_reverse_iterator;
-		typedef typename rbt_type::difference_type			difference_type;
-		typedef typename rbt_type::size_type						size_type;
-		typedef typename rbt_type::allocator_type				allocator_type;
+		typedef typename rbt_type::pointer			pointer;
+		typedef typename rbt_type::const_pointer	const_pointer;
+		typedef typename rbt_type::reference		reference;
+		typedef typename rbt_type::const_reference	const_reference;
+		typedef typename rbt_type::iterator			iterator;
+		typedef typename rbt_type::const_iterator	const_iterator;
+		typedef typename rbt_type::reverse_iterator	reverse_iterator;
+		typedef typename rbt_type::reverse_iterator	const_reverse_iterator;
+		typedef typename rbt_type::difference_type	difference_type;
+		typedef typename rbt_type::size_type		size_type;
+		typedef typename rbt_type::allocator_type	allocator_type;
 
 	private:
 		allocator_type value_alloc;

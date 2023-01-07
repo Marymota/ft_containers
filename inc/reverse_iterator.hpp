@@ -42,7 +42,7 @@ namespace ft
 			// Assignment
 			template< class U>
 			reverse_iterator& operator=( const reverse_iterator<U>& other) { 
-				if (this = &other)
+				if (this == &other)
 					return *this; 
 				_iter = other._iter; 
 				return *this;

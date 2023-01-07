@@ -18,7 +18,7 @@ template <class Val>
 struct Rb_tree_node {
 
 	typedef Rb_tree_node*	Node;
-	typedef Rb_tree_node<Val>* Link_type;
+	typedef Rb_tree_node<Val>* Link_type;	
 	Val value_field;
 
 	Node	_parent;
