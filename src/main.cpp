@@ -9,7 +9,7 @@
 	namespace ft = std;
 #else
 //	#include "../algorithms/rb_tree.hpp"
-	#include "../algorithms/bst_tree.hpp"
+	#include "../algorithms/bst.hpp"
 //	#include "../containers/map.hpp"
 	#include "../containers/stack.hpp"
 	#include "../containers/vector.hpp"
@@ -436,8 +436,14 @@ void rb_tree() {
 }
 
 void bst_tree() {
-	
+	ft::BST<int> bst;
+
+	bst.insert(5);
+
+	bst.tree_print();
+
 }
+	
 
 int main() {
 
