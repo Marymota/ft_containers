@@ -436,11 +436,23 @@ void rb_tree() {
 }
 
 void bst_tree() {
-	ft::BST<int> bst;
+//	ft::BSTNode<int> bst;
+//	ft::BSTNode<int> bst1;
+//	ft::BSTNode<int> bst2;
 
-	bst.insert(5);
+	ft::BST<char, int> tree;
 
-	bst.tree_print();
+	tree.put('h', 1);
+	tree.put('c', 2);
+	tree.put('s', 3);
+	tree.put('a', 4);
+	tree.put('r', 5);
+	tree.put('e', 6);
+	tree.put('x', 2);
+
+	std::cout << "get: " << tree.get('r') << std::endl;
+
+	tree.tree_print();
 
 }
 	
