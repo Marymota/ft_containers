@@ -442,18 +442,18 @@ void bst_tree() {
 
 	ft::BST<char, int> tree;
 
-	tree.put('h', 1);
-	tree.put('c', 2);
-	tree.put('s', 3);
+	tree.put('s', 1);
+	tree.put('e', 2);
+	tree.put('x', 3);
 	tree.put('a', 4);
 	tree.put('r', 5);
-	tree.put('e', 6);
-	tree.put('x', 2);
+	tree.put('c', 6);
+	tree.put('h', 2);
+	tree.put('m', 2);
 
-	std::cout << "get: " << tree.get('r') << std::endl;
+	std::cout << "get: " << tree.count() << std::endl;
 
 	tree.tree_print();
-
 }
 	
 
