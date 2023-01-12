@@ -48,6 +48,9 @@
 		"chrono": "cpp",
 		"ctime": "cpp",
 		"ratio": "cpp",
-		"stack": "cpp"
+		"stack": "cpp",
+		"compare": "cpp",
+		"concepts": "cpp",
+		"ranges": "cpp"
 	}
 }

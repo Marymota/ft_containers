@@ -16,20 +16,20 @@ namespace ft {
 		 * 						Alloc_Node = allocates BSTNodes
 		 */
 
-		typedef Key								key_type;
-		typedef T									value_type;
+		typedef Key					key_type;
+		typedef T					value_type;
 		typedef BSTNode<Key, T>		node_type;
 		typedef BSTNode<Key, T>*	Node;
-		typedef size_t						size_type;
+		typedef size_t				size_type;
 
-		typedef	Alloc							allocator_type;
+		typedef	Alloc				allocator_type;
 		typedef typename Alloc::template rebind<BSTNode<Key, T> >::other	Alloc_Node;
 
 //	private:
-		Node				_root;
-		Alloc				_alloc;
+		Node		_root;
+		Alloc		_alloc;
 		Alloc_Node	_alloc_node;
-		size_type		_size;
+		size_type	_size;
 
 	public:
 
@@ -121,11 +121,23 @@ namespace ft {
 			tree_print(_root, "", true);
 	} // end tree_print
 
+	/** @delete_min: 
+	 * Call deleteMin() with the next smaller node as argument (node->left);
+	 * If the next smaller node is a leaf (NULL) return the node at the right
+	 * While recursivelly calling deleteMin() we point the 
+	 * current node left link to its return 
+	 * (node->left if a leaf is not found, continuing the recursive cycle,
+	 * or node->right if a leaf is found, that will be automatically
+	 * adopted by the previously node called in deleteMin();
+	 */
 
+	void deleteNode(key_type key) { deleteNode(_root, key); }
+	void deleteMin() { deleteMin(_root); }
+	void deleteMax() { deleteMax(_root); }
 
 private:
 
-	Node floor(Node x, Key key) {
+	Node floor(Node x, key_type key) {
 		if (x == NULL) return NULL;
 		if (key == x->_key) return x;
 		if (key < x->_key) return _floor(x->_left, key);
@@ -134,7 +146,7 @@ private:
 		else	return x;
 	} // end(floor)
 
-	Node ceiling(Node x, Key key) {
+	Node ceiling(Node x, key_type key) {
 		if (x == NULL) return NULL;
 		if (key == x->_key) return x;
 		if (key > x->_key) return _ceiling(x->_right, key);
@@ -147,6 +159,34 @@ private:
 		if (x == NULL)
 			return 0;
 		return x->_count;
+	}
+
+	Node deleteMin(Node x) {
+		if (x->_left == NULL) { return x->_right; }
+		x->_left = deleteMin(x->_left);
+		x->_count = 1 + count(x->_left) + count(x->_right);
+		return x;
+	}
+
+	Node deleteNode(Node x, key_type key) {
+		/** @bug:	Need to protect from unexistent given key 
+		 * 			Does not delete root
+		*/
+
+		// Search for the node to e deleted
+		if (key == 0) { return NULL; }
+		if (key < x->_key) { x->_left = deleteNode(x->_left, key); }
+		else if (key > x->_key) { x->_right = deleteNode(x->_right, key); }
+		else {
+			if (x->_right == NULL)	return x->_left; 	// no right child
+			if (x->_left == NULL)	return x->_right;	// no left child
+			Node t = x;
+			x = this->minimum(t->_right);
+			x->_right = deleteMin(t->_right);
+			x->_left = t->_left;
+		}
+		x->_count = count(x->_left) + count(x->_right) + 1;
+		return x;
 	}
 
 	void tree_print(Node root, std::string indent, bool last) {

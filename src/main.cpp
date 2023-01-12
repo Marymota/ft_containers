@@ -440,18 +440,18 @@ void bst_tree() {
 //	ft::BSTNode<int> bst1;
 //	ft::BSTNode<int> bst2;
 
-	ft::BST<char, int> tree;
+	ft::BST<int, char> tree;
 
-	tree.put('s', 1);
-	tree.put('e', 2);
-	tree.put('x', 3);
-	tree.put('a', 4);
-	tree.put('r', 5);
-	tree.put('c', 6);
-	tree.put('h', 2);
-	tree.put('m', 2);
+	tree.put(1, 'a');
+	tree.put(2, 'b');
+	tree.put(3, 'c');
+	tree.put(4, 'd');
+	tree.put(5, 'e');
+	tree.put(6, 'f');
+	tree.put(7, 'g');
+	tree.put(8, 'h');
 
-	std::cout << "get: " << tree.count() << std::endl;
+	tree.deleteNode(80);
 
 	tree.tree_print();
 }
