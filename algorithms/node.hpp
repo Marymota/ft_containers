@@ -12,8 +12,8 @@ namespace ft {
 		typedef T 			value_type;
 		typedef size_t	size_type;
 
-		Key				_key;
-		T				_data;
+		Key					_key;
+		T						_data;
 		BSTNode *		_left;
 		BSTNode	*		_right;
 		size_type		_count;

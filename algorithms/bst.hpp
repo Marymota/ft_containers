@@ -2,6 +2,7 @@
 #define _BST_HPP_
 
 #include <iostream>
+#include <algorithm>
 #include "../algorithms/node.hpp"
 
 namespace ft {
@@ -16,20 +17,20 @@ namespace ft {
 		 * 						Alloc_Node = allocates BSTNodes
 		 */
 
-		typedef Key					key_type;
-		typedef T					value_type;
+		typedef Key								key_type;
+		typedef T									value_type;
 		typedef BSTNode<Key, T>		node_type;
 		typedef BSTNode<Key, T>*	Node;
-		typedef size_t				size_type;
+		typedef size_t						size_type;
 
-		typedef	Alloc				allocator_type;
+		typedef	Alloc							allocator_type;
 		typedef typename Alloc::template rebind<BSTNode<Key, T> >::other	Alloc_Node;
 
 //	private:
-		Node		_root;
-		Alloc		_alloc;
+		Node				_root;
+		Alloc				_alloc;
 		Alloc_Node	_alloc_node;
-		size_type	_size;
+		size_type		_size;
 
 	public:
 
@@ -102,16 +103,16 @@ namespace ft {
 	 *		Node y keeps track of all the left turns
 	 */	
 
-	key_type floor(Key key) {
+	Node floor(Key key) {
 		Node x = floor(_root, key);
 		if (x == NULL) return 0;
-		return x->_key;
+		return x;
 	}
 
-	key_type ceiling(Key key) {
+	Node ceiling(Key key) {
 		Node x = ceiling(_root, key);
 		if (x == NULL) return 0;
-		return x->_key;
+		return x;
 	}
 
 	size_type count() { return count(_root);	}
@@ -131,7 +132,7 @@ namespace ft {
 	 * adopted by the previously node called in deleteMin();
 	 */
 
-	void deleteNode(key_type key) { deleteNode(_root, key); }
+	void deleteNode(key_type key) { _root = deleteNode(_root, key); }	
 	void deleteMin() { deleteMin(_root); }
 	void deleteMax() { deleteMax(_root); }
 
@@ -140,7 +141,7 @@ private:
 	Node floor(Node x, key_type key) {
 		if (x == NULL) return NULL;
 		if (key == x->_key) return x;
-		if (key < x->_key) return _floor(x->_left, key);
+		if (key < x->_key) return floor(x->_left, key);
 		Node y = floor(x->_right, key);
 		if (y != NULL)	return y;
 		else	return x;
@@ -149,8 +150,8 @@ private:
 	Node ceiling(Node x, key_type key) {
 		if (x == NULL) return NULL;
 		if (key == x->_key) return x;
-		if (key > x->_key) return _ceiling(x->_right, key);
-		Node y = _ceiling(x->_left, key);
+		if (key > x->_key) return ceiling(x->_right, key);
+		Node y = ceiling(x->_left, key);
 		if (y != NULL)	return y;
 		else	return x;
 	} // end(ceiling)
@@ -168,25 +169,41 @@ private:
 		return x;
 	}
 
+	Node deleteMax(Node x) {
+		if (x->_right == NULL) { return x->_left; }
+		x->_right = deleteMax(x->_right);
+		x->_count = 1 + count(x->_left) + count(x->_right);
+		return x;
+	}
+
 	Node deleteNode(Node x, key_type key) {
 		/** @bug:	Need to protect from unexistent given key 
-		 * 			Does not delete root
+		 * 				Does not delete root
 		*/
-
 		// Search for the node to e deleted
-		if (key == 0) { return NULL; }
+		//if (node_isroot(x, key)) return _root;
+		if (key == 0 || x == NULL) { return NULL; }
 		if (key < x->_key) { x->_left = deleteNode(x->_left, key); }
 		else if (key > x->_key) { x->_right = deleteNode(x->_right, key); }
 		else {
 			if (x->_right == NULL)	return x->_left; 	// no right child
 			if (x->_left == NULL)	return x->_right;	// no left child
+			
 			Node t = x;
-			x = this->minimum(t->_right);
-			x->_right = deleteMin(t->_right);
-			x->_left = t->_left;
+			x = this->maximum(t->_left);
+			x->_left = deleteMax(t->_left);
+			x->_right  = t->_right;
+			x->_count = count(x->_left) + count(x->_right) + 1;
 		}
-		x->_count = count(x->_left) + count(x->_right) + 1;
 		return x;
+	}
+
+
+
+
+	void clear_Node (Node x) {
+		_alloc_node.destroy(x);
+		_alloc_node.deallocate(x, sizeof(Node));
 	}
 
 	void tree_print(Node root, std::string indent, bool last) {
@@ -199,7 +216,7 @@ private:
 				std::cout << "L----";
 				indent += "|    ";
 			}
-			std::cout << root->_key << "(" << root->_data << ")" << std::endl;
+			std::cout << root->_key << "( " << root->_data << " )" << std::endl;
 			tree_print(root->_left, indent, false);
 			tree_print(root->_right, indent, true);
 		}

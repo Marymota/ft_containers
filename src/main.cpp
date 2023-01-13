@@ -442,16 +442,17 @@ void bst_tree() {
 
 	ft::BST<int, char> tree;
 
-	tree.put(1, 'a');
+	tree.put(10,'a');
 	tree.put(2, 'b');
-	tree.put(3, 'c');
-	tree.put(4, 'd');
+	tree.put(31,'c');
+	tree.put(14,'d');
 	tree.put(5, 'e');
-	tree.put(6, 'f');
-	tree.put(7, 'g');
+	tree.put(16,'f');
+	tree.put(71,'g');
 	tree.put(8, 'h');
+	tree.put(3, 'h');
 
-	tree.deleteNode(80);
+	tree.deleteNode(1);
 
 	tree.tree_print();
 }
