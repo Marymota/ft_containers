@@ -436,25 +436,22 @@ void rb_tree() {
 }
 
 void bst_tree() {
-//	ft::BSTNode<int> bst;
-//	ft::BSTNode<int> bst1;
-//	ft::BSTNode<int> bst2;
-
 	ft::BST<int, char> tree;
 
-	tree.put(10,'a');
-	tree.put(2, 'b');
-	tree.put(31,'c');
-	tree.put(14,'d');
-	tree.put(5, 'e');
-	tree.put(16,'f');
-	tree.put(71,'g');
-	tree.put(8, 'h');
-	tree.put(3, 'h');
+//	tree.put(10,'a');
+//	tree.put(2, 'b');
+//	tree.put(31,'c');
+//	tree.put(14,'d');
+//	tree.put(5, 'e');
+//	tree.put(16,'f');
+//	tree.put(71,'g');
+//	tree.put(8, 'h');
+//	tree.put(3, 'h');
 
-	tree.deleteNode(1);
-
-	tree.tree_print();
+//	tree.deleteNode(10);
+//
+//	tree.tree_print();
+	
 }
 	
 

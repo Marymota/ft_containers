@@ -28,22 +28,31 @@ namespace ft {
 
 //	private:
 		Node				_root;
-		Alloc				_alloc;
-		Alloc_Node	_alloc_node;
+		Alloc_Node	_alloc;
 		size_type		_size;
 
 	public:
 
-		BST() : _size(0) {
-			_root = _alloc_node.allocate(1);
-			_root = NULL;
+		BST(const allocator_type& alloc = allocator_type()) : _root(NULL), _alloc(alloc), _size(0)  {}
+
+		BST(key_type key, value_type data, const allocator_type& alloc = allocator_type()) :  _root(NULL), _alloc(alloc), _size(1) {
+			_root = _alloc.allocate(1);
+			_root->_key = key;
+			_root->_data = data;
+			_root->_left = NULL;
+			_root->_right = NULL;
 		}
 
-		BST(key_type key, value_type data) : _size(0) {
-			_root = _alloc_node.allocate(1);
-			_alloc.construct(&_root->_data, key, data);
+		/** @bug: Need to use std::allocator to destroy elements
+		 */
+		~BST() {
+			deleteTree();
 		}
 		
+		void deleteTree() {
+			deleteTree(_root);
+		}
+
 		bool search(Node root, key_type key) {
 			if (root == NULL)
 				return false;
@@ -69,6 +78,7 @@ namespace ft {
 
 		void put(key_type key, value_type data) {
 			put(_root, key, data);
+			++_size;
 		}
 
 		void	put(Node& root, key_type key, value_type data) {
@@ -132,7 +142,7 @@ namespace ft {
 	 * adopted by the previously node called in deleteMin();
 	 */
 
-	void deleteNode(key_type key) { _root = deleteNode(_root, key); }	
+	void deleteNode(key_type key) { _root = deleteNode(_root, key); --_size; }	
 	void deleteMin() { deleteMin(_root); }
 	void deleteMax() { deleteMax(_root); }
 
@@ -198,12 +208,19 @@ private:
 		return x;
 	}
 
-
-
+	void deleteTree(Node root) {
+		if (root == NULL)
+			return ;
+		deleteTree(root->_left);
+		deleteTree(root->_right);
+		std::cout << "del: " << root->_key << std::endl;
+		delete root;
+		root = NULL;
+	}
 
 	void clear_Node (Node x) {
-		_alloc_node.destroy(x);
-		_alloc_node.deallocate(x, sizeof(Node));
+		_alloc.destroy(x);
+		_alloc.deallocate(x, sizeof(Node));
 	}
 
 	void tree_print(Node root, std::string indent, bool last) {

@@ -24,6 +24,8 @@ namespace ft {
 		BSTNode* minimum(BSTNode* x){ while (x->_left != NULL){ x = x->_left; } return x; }
 		BSTNode* maximum(BSTNode* x){ while (x->_right != NULL){ x = x->_right; } return x; }
 
+		virtual ~BSTNode() {}
+
 		key_type get_node_key() { return this->_key; }
 		value_type get_node_value() { return this->_data; }
 
