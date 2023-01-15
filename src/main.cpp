@@ -10,7 +10,7 @@
 #else
 //	#include "../algorithms/rb_tree.hpp"
 	#include "../algorithms/bst.hpp"
-//	#include "../containers/map.hpp"
+	#include "../containers/map.hpp"
 	#include "../containers/stack.hpp"
 	#include "../containers/vector.hpp"
 #endif
@@ -436,7 +436,7 @@ void rb_tree() {
 }
 
 void bst_tree() {
-	ft::BST<int, char> tree;
+//	ft::BST<int, char> tree;
 
 //	tree.put(10,'a');
 //	tree.put(2, 'b');
@@ -453,6 +453,17 @@ void bst_tree() {
 //	tree.tree_print();
 	
 }
+
+void map_value_comp() {
+	ft::map<char, int> mymap;
+	// ft::map<char,int>::key_compare mycomp = mymap.key_comp();
+
+	mymap['a'] = 100;
+		mymap.put('a', 100);
+
+	//std::cout << "mymap contains: " << mymap[0] << std::endl;
+}
+
 	
 
 int main() {
@@ -479,10 +490,10 @@ int main() {
 	//PAIR
 		//pair();
 		//MAP
-			//map_construct();
+			map_value_comp();
 	//TREE
 		//rb_tree();
-		bst_tree();
+		//bst_tree();
 		
 		finish = clock();
 

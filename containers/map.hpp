@@ -21,13 +21,14 @@
 
 namespace ft {
 
+			/*-------*/
+		 /** MAP: */
 		/*-------*/
-		/**	MAP: */
-		 /*-------*/
+
 // Class template
-template <class Key,	class Tp,	class Compare = std::less<Key>,
-					class Alloc = std::allocator<ft::pair<const Key, Tp> > >
-class map {
+template <class Key,	class T,	class Compare = std::less<Key>,
+					class Alloc = std::allocator<ft::pair<const Key, T> > >
+class map : public BST<Key, T, Alloc> {
 
 	public:
 
@@ -36,11 +37,33 @@ class map {
  /*----------------*/
 
 		// Template parameters
-		typedef Key											key_type;
-		typedef Tp											data_type;
-		typedef Tp											mapped_type;
-		typedef Compare									key_compare;
-		typedef ft::pair<const Key, Tp>	value_type;
+		typedef Key																				key_type;
+		typedef T																					mapped_type;
+		typedef ft::pair<const Key, T>										value_type;
+		typedef Compare																		key_compare;
+		typedef Alloc																			allocator_type;
+
+	private:
+		typedef typename Alloc::template rebind<value_type>::other alloc_pair;
+		typedef BST<key_type, mapped_type, key_compare, alloc_pair> BST_type;
+
+	// Tree structure
+		BST_type	_tree;
+
+	public:
+		typedef typename alloc_pair::reference						reference;
+		typedef typename alloc_pair::const_reference			const_value_type;
+		typedef typename alloc_pair::pointer							pointer;
+		typedef typename alloc_pair::const_pointer				const_pointer;
+		typedef typename BST_type::iterator								iterator;
+		typedef typename BST_type::const_iterator					const_iterator;
+		typedef typename BST_type::reverse_iterator				reverse_iterator;
+		typedef typename BST_type::const_reverse_iterator	const_reverse_iterator;
+		typedef typename BST_type::difference_type				difference_type;
+		typedef size_t																		size_type;
+
+
+public:
 
 /** @value_compare: std::map::value_compare is a function object that compares 
  * objects of type std::map::value_type (key-value pairs) by comparing of the
@@ -57,7 +80,7 @@ class map {
  * */
 		class value_compare
 			: public std::binary_function<value_type, value_type, bool> {
-		friend class map<Key, Tp, Compare, Alloc>;
+		friend class map<Key, T, Compare, Alloc>;
 		// Initializes the internal instance of the comparator to c
 		protected:
 			Compare comp;
@@ -69,32 +92,11 @@ class map {
 			}
 		};
 
-	private:
-		/**	@red_black_tree: representation of a map as a red black tree */
-		typedef Rb_tree<Key, value_type,
-										std::_Select1st<value_type>, Alloc> rbt_type;
-		rbt_type rbt;
-
-	public:
-		typedef typename rbt_type::pointer			pointer;
-		typedef typename rbt_type::const_pointer	const_pointer;
-		typedef typename rbt_type::reference		reference;
-		typedef typename rbt_type::const_reference	const_reference;
-		typedef typename rbt_type::iterator			iterator;
-		typedef typename rbt_type::const_iterator	const_iterator;
-		typedef typename rbt_type::reverse_iterator	reverse_iterator;
-		typedef typename rbt_type::reverse_iterator	const_reverse_iterator;
-		typedef typename rbt_type::difference_type	difference_type;
-		typedef typename rbt_type::size_type		size_type;
-		typedef typename rbt_type::allocator_type	allocator_type;
-
-	private:
-		allocator_type value_alloc;
-
 	public:
 		//default constructor
 		explicit map (const key_compare& comp = key_compare(),
-		const allocator_type& alloc = allocator_type()) : rbt(comp, alloc){	}
+									const allocator_type& alloc = allocator_type()) :
+									_tree(comp, alloc)	{	}
 
 		// Range constructor
 		template<	class InputIterator>
@@ -122,12 +124,17 @@ class map {
 		size_type max_size() const ;
 
 		// Element access
-		mapped_type& operator[] (const key_type& k);
+		mapped_type& operator[] (const key_type& k) {
+			return (*((this->insert(ft::make_pair(k, mapped_type()))).first));
+		}
+
 		mapped_type& at (const key_type& k);
 		const mapped_type& at (const key_type& k) const;
 
 		// Modifiers
-		pair<iterator,bool> insert (const value_type& val);
+		pair<iterator,bool> insert (const value_type& val) {
+			return _tree.put(val.first, val.second);
+		}
 		iterator insert (iterator position, const value_type& val);
 		template <class InputIterator>
 		void insert (InputIterator first, InputIterator last);

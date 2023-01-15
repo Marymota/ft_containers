@@ -4,12 +4,16 @@
 #include <iostream>
 #include <algorithm>
 #include "../algorithms/node.hpp"
+#include "../inc/bidirectional_iterator.hpp"
+#include "../inc/reverse_iterator.hpp"
+#include "../inc/pair.hpp"
+
 
 namespace ft {
 
-	template <	class Key,	class T,
+	template <	class Key,	class T, class Compare,
 							class Alloc = std::allocator<T> >
-	class BST : private BSTNode<Key, T> {
+	class BST : public BSTNode<Key, T> {
 
 		/** @rebind:	Defines an allocator for a new type different
 		 * 						from the one defined in the container.
@@ -17,25 +21,36 @@ namespace ft {
 		 * 						Alloc_Node = allocates BSTNodes
 		 */
 
-		typedef Key								key_type;
-		typedef T									value_type;
-		typedef BSTNode<Key, T>		node_type;
-		typedef BSTNode<Key, T>*	Node;
-		typedef size_t						size_type;
+	public:
+		typedef Key																												key_type;
+		typedef T																													mapped_type;
+		typedef ft::pair<const Key, T>																		value_type;
+		typedef Compare																										key_compare;
+		typedef BSTNode<Key, T>																						node_type;
+		typedef BSTNode<Key, T>*																					Node;
+		typedef typename ft::bidirectional_iterator<value_type>						iterator;
+		typedef typename ft::bidirectional_iterator<const value_type> 		const_iterator;
+		typedef typename ft::reverse_iterator<value_type>									reverse_iterator;
+		typedef typename ft::reverse_iterator<const value_type> 					const_reverse_iterator;
+		typedef ptrdiff_t																									difference_type;
+		typedef size_t																										size_type;
 
-		typedef	Alloc							allocator_type;
+		typedef	Alloc																											allocator_type;
 		typedef typename Alloc::template rebind<BSTNode<Key, T> >::other	Alloc_Node;
 
-//	private:
+	private:
 		Node				_root;
+		Compare 		_comp;
 		Alloc_Node	_alloc;
 		size_type		_size;
 
 	public:
 
-		BST(const allocator_type& alloc = allocator_type()) : _root(NULL), _alloc(alloc), _size(0)  {}
+		BST(const key_compare& comp = key_compare(),
+				const allocator_type& alloc = allocator_type()) :
+				_root(NULL), _comp(comp), _alloc(alloc), _size(0)  {}
 
-		BST(key_type key, value_type data, const allocator_type& alloc = allocator_type()) :  _root(NULL), _alloc(alloc), _size(1) {
+		BST(key_type key, mapped_type data, const allocator_type& alloc = allocator_type()) :  _root(NULL), _alloc(alloc), _size(1) {
 			_root = _alloc.allocate(1);
 			_root->_key = key;
 			_root->_data = data;
@@ -63,7 +78,7 @@ namespace ft {
 			return true;
 		}	// end search()
 
-		value_type get(Key key) {
+		mapped_type get(Key key) {
 			Node x = _root;
 			while(x != NULL) {
 				if (key < x->_key)
@@ -76,16 +91,16 @@ namespace ft {
 			return 0;
 		} // end get()
 
-		void put(key_type key, value_type data) {
-			put(_root, key, data);
+		void put(key_type key, mapped_type data) {
 			++_size;
+			put(_root, key, data);
 		}
 
-		void	put(Node& root, key_type key, value_type data) {
+		pair<iterator,bool>	put(Node& root, key_type key, mapped_type data) {
 			if (root == NULL) {
 				root = new node_type(key, data, 1);
 				_size++;
-				return ;
+				return root;
 			}
 			if (key == root->_key)
 				root->_data = data;
@@ -94,7 +109,7 @@ namespace ft {
 			else
 				put(root->_right, key, data);
 			root->_count = 1 + count(root->_left) + count(root->_right);	
-			return ;
+			return root;
 	} // end insert()
 
 
