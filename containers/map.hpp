@@ -27,7 +27,7 @@ namespace ft {
 // Class template
 template <class Key,	class T,	class Compare = std::less<Key>,
 					class Alloc = std::allocator<ft::pair<const Key, T> > >
-class map : public BST<Key, T, Alloc> {
+class map : public BST<Key, T, ft::pair<const Key, T>, Compare, Alloc> {
 
 	public:
 
@@ -42,9 +42,8 @@ class map : public BST<Key, T, Alloc> {
 		typedef Compare																		key_compare;
 		typedef Alloc																			allocator_type;
 
-	private:
 		typedef typename Alloc::template rebind<value_type>::other alloc_pair;
-		typedef BST<key_type, mapped_type, key_compare, alloc_pair> BST_type;
+		typedef BST<key_type, mapped_type, value_type, Compare, Alloc> BST_type;
 
 	// Tree structure
 		BST_type	_tree;

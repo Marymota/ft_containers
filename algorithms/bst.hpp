@@ -11,8 +11,8 @@
 
 namespace ft {
 
-	template <	class Key,	class T, class Compare = std::less<Key>,
-							class Alloc = std::allocator<T> >
+	template <	class Key,	class T, class NodeData, class Compare = std::less<Key>,
+							class Alloc = std::allocator<ft::pair<const Key, T> > >
 	class BST : public BSTNode<T> {
 
 		/** @rebind:	Defines an allocator for a new type different
@@ -64,14 +64,13 @@ namespace ft {
 			deleteTree();
 		}
 		
-		key_type get_key(const value_type& val) const {
-			return val->first;
+		key_type get_key( value_type& val) {
+			return val.first;
 		}
 
-		value_type get_val(const value_type& val) const {
-			return val->second;
+		mapped_type get_val( value_type& val) {
+			return val.second;
 		}
-
 
 		void deleteTree() {
 			deleteTree(_root);
@@ -111,8 +110,8 @@ namespace ft {
 				_size++;
 				return root;
 			}
-			if (key == root->_data)
-				root->_data = data;
+			if (key == get_key(root->_data))
+				root->_data = make_pair(key, data);
 			else if (key < get_key(root->_data))
 				put(root->_left, key, data);
 			else
@@ -237,7 +236,6 @@ private:
 			return ;
 		deleteTree(root->_left);
 		deleteTree(root->_right);
-		std::cout << "del: " << root->_key << std::endl;
 		delete root;
 		root = NULL;
 	}
