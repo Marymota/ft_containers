@@ -4,57 +4,55 @@
 #include <iterator>
 #include <cstddef>
 #include "iterator_traits.hpp"
+#include "../algorithms/bst.hpp"
 
 namespace ft {
 
-	template<typename T>
-	class bidirectional_iterator : public std::iterator<std::bidirectional_iterator_tag, T> {
+	template<typename Tp>
+	class BST_iterator {
 
 		public:
+			typedef Tp 																value_type;
+			typedef Tp& 															reference;
+			typedef Tp* 															pointer;
 
-			typedef T																value_type;
-			typedef ptrdiff_t												difference_type;
-			typedef std::bidirectional_iterator_tag	iterator_category;
-			typedef value_type*											pointer;
-			typedef value_type&											reference;
-			typedef const value_type*								const_pointer;
-			typedef const value_type&								const_reference;
+			typedef bidirectional_iterator_tag				iterator_category;
+			typedef ptrdiff_t													difference_type;
 
-			bidirectional_iterator() : ptr(NULL) {}
-			bidirectional_iterator(pointer ptr) : ptr(ptr) {}
-			bidirectional_iterator(const bidirectional_iterator& ref) : ptr(ref.ptr) {}
-			~bidirectional_iterator() {}
+			typedef BST_iterator<Tp>									it;
+			typedef typename BSTNode<Tp>::node_type		node_type;
+			typedef node_type*												Node;
 
-			// Overload to copy construct a const_iterator
-			operator bidirectional_iterator<const value_type>() const {
-				return bidirectional_iterator<const value_type>(ptr);
-			}
+			BST_iterator<Tp>() : _node() {}
+			explicit BST_iterator(Node x) : _node(x) {}
+			BST_iterator(const BST_iterator& ref) : _node(ref._node) {}
+			~BST_iterator() {}
 
-			bidirectional_iterator& operator=(const bidirectional_iterator& copy) {
+			BST_iterator& operator=(const BST_iterator& copy) {
 				if(this != &copy)
-					ptr = copy.ptr;
+					_node = copy._node;
 				return (*this);
 			}
 
 		private:
-			T* ptr;
+			Node _node;
 
 		public:
-			bool operator!=(const bidirectional_iterator& x) const 	{ return (ptr != 	x.ptr);}
-			bool operator==(const bidirectional_iterator& x) const 	{ return (ptr == 	x.ptr);}
+			bool operator!=(const BST_iterator& x) const 	{ return (_node != 	x._node);}
+			bool operator==(const BST_iterator& x) const 	{ return (_node == 	x._node);}
 
-			bidirectional_iterator operator-(difference_type val) const { return bidirectional_iterator<T>(ptr - val);}
-			difference_type operator-(bidirectional_iterator const& rhs) const { return ptr - rhs.ptr;}
+			BST_iterator operator-(difference_type val) const { return BST_iterator<Tp>(_node - val);}
+			difference_type operator-(BST_iterator const& rhs) const { return _node - rhs._node;}
 
-			bidirectional_iterator operator+(difference_type val) const { return bidirectional_iterator<T>(ptr + val);}
-			difference_type operator+(bidirectional_iterator const& rhs) const { return ptr + rhs.ptr;}
+			BST_iterator operator+(difference_type val) const { return BST_iterator<Tp>(_node + val);}
+			difference_type operator+(BST_iterator const& rhs) const { return _node + rhs._node;}
 
-			bidirectional_iterator operator++() { ++ptr; return *this; }
-			bidirectional_iterator operator++(int) { bidirectional_iterator it(*this); ++ptr; return it; }
-			bidirectional_iterator operator--() { --ptr; return *this; }
-			bidirectional_iterator operator--(int) { bidirectional_iterator it(*this); --ptr; return it; }
-			reference operator*() const { return *ptr; }
-			reference operator->() const { return *ptr; }
+			BST_iterator operator++() { ++_node; return *this; }
+			BST_iterator operator++(int) { BST_iterator it(*this); ++_node; return it; }
+			BST_iterator operator--() { --_node; return *this; }
+			BST_iterator operator--(int) { BST_iterator it(*this); --_node; return it; }
+			reference operator*() const { return static_cast<Node>(_node)->_data; }
+			reference operator->() const { return *_node; }
 	};
 }
 

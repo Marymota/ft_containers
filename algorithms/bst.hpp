@@ -11,9 +11,9 @@
 
 namespace ft {
 
-	template <	class Key,	class T, class Compare,
+	template <	class Key,	class T, class Compare = std::less<Key>,
 							class Alloc = std::allocator<T> >
-	class BST : public BSTNode<Key, T> {
+	class BST : public BSTNode<T> {
 
 		/** @rebind:	Defines an allocator for a new type different
 		 * 						from the one defined in the container.
@@ -22,21 +22,21 @@ namespace ft {
 		 */
 
 	public:
-		typedef Key																												key_type;
-		typedef T																													mapped_type;
-		typedef ft::pair<const Key, T>																		value_type;
-		typedef Compare																										key_compare;
-		typedef BSTNode<Key, T>																						node_type;
-		typedef BSTNode<Key, T>*																					Node;
-		typedef typename ft::bidirectional_iterator<value_type>						iterator;
-		typedef typename ft::bidirectional_iterator<const value_type> 		const_iterator;
-		typedef typename ft::reverse_iterator<value_type>									reverse_iterator;
-		typedef typename ft::reverse_iterator<const value_type> 					const_reverse_iterator;
-		typedef ptrdiff_t																									difference_type;
-		typedef size_t																										size_type;
+		typedef Key																			key_type;
+		typedef T																				mapped_type;
+		typedef ft::pair<const Key, T>									value_type;
+		typedef Compare																	key_compare;
+		typedef BSTNode<value_type>											node_type;
+		typedef BSTNode<value_type>*										Node;
+		typedef ft::BST_iterator<node_type>							iterator;
+		typedef ft::BST_iterator<const node_type> 			const_iterator;
+		typedef ft::reverse_iterator<node_type>					reverse_iterator;
+		typedef ft::reverse_iterator<const node_type> 	const_reverse_iterator;
+		typedef ptrdiff_t																difference_type;
+		typedef size_t																	size_type;
+		typedef	Alloc																		allocator_type;
 
-		typedef	Alloc																											allocator_type;
-		typedef typename Alloc::template rebind<BSTNode<Key, T> >::other	Alloc_Node;
+		typedef typename Alloc::template rebind<BSTNode<T> >::other	Alloc_Node;
 
 	private:
 		Node				_root;
@@ -64,6 +64,15 @@ namespace ft {
 			deleteTree();
 		}
 		
+		key_type get_key(const value_type& val) const {
+			return val->first;
+		}
+
+		value_type get_val(const value_type& val) const {
+			return val->second;
+		}
+
+
 		void deleteTree() {
 			deleteTree(_root);
 		}
@@ -96,15 +105,15 @@ namespace ft {
 			put(_root, key, data);
 		}
 
-		pair<iterator,bool>	put(Node& root, key_type key, mapped_type data) {
+		Node	put(Node& root, key_type key, mapped_type data) {
 			if (root == NULL) {
-				root = new node_type(key, data, 1);
+				root = new node_type();
 				_size++;
 				return root;
 			}
-			if (key == root->_key)
+			if (key == root->_data)
 				root->_data = data;
-			else if (key < root->_key)
+			else if (key < get_key(root->_data))
 				put(root->_left, key, data);
 			else
 				put(root->_right, key, data);

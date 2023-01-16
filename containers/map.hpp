@@ -16,7 +16,6 @@
 #include "../inc/distance.hpp"
 #include "../inc/uninitialized_copy.hpp"
 #include "../inc/lex_compare.hpp"
-#include "../algorithms/rb_tree.hpp"
 #include "../inc/pair.hpp"
 
 namespace ft {
@@ -96,7 +95,7 @@ public:
 		//default constructor
 		explicit map (const key_compare& comp = key_compare(),
 									const allocator_type& alloc = allocator_type()) :
-									_tree(comp, alloc)	{	}
+									_tree(comp, alloc) {}
 
 		// Range constructor
 		template<	class InputIterator>
@@ -132,9 +131,26 @@ public:
 		const mapped_type& at (const key_type& k) const;
 
 		// Modifiers
+
+
+		/** @insert: Attemps to insert a ft::pair into the map
+		 * pair<iterator, bool>:
+		 * bool represents the result of insertion
+		 * and iterator represents the position of newly added element
+		 */
+
 		pair<iterator,bool> insert (const value_type& val) {
-			return _tree.put(val.first, val.second);
-		}
+			key_type key = get_key(val);
+			iterator it = search(key);
+
+			if (it != NULL) return ft::make_pair(it, false);
+
+			it = iterator(put(key, val->second));
+
+			return ft::make_pair(it, true);			
+		};
+
+
 		iterator insert (iterator position, const value_type& val);
 		template <class InputIterator>
 		void insert (InputIterator first, InputIterator last);

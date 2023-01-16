@@ -436,35 +436,47 @@ void rb_tree() {
 }
 
 void bst_tree() {
-//	ft::BST<int, char> tree;
 
-//	tree.put(10,'a');
-//	tree.put(2, 'b');
-//	tree.put(31,'c');
-//	tree.put(14,'d');
-//	tree.put(5, 'e');
-//	tree.put(16,'f');
-//	tree.put(71,'g');
-//	tree.put(8, 'h');
-//	tree.put(3, 'h');
+	ft::map<int, char> tree;
+	tree.put(10,'a');
+	tree.put(2, 'b');
+	tree.put(31,'c');
+	tree.put(14,'d');
+	tree.put(5, 'e');
+	tree.put(16,'f');
+	tree.put(71,'g');
+	tree.put(8, 'h');
+	tree.put(3, 'h');
+	tree.deleteNode(10);
 
-//	tree.deleteNode(10);
-//
-//	tree.tree_print();
+	tree.tree_print();
 	
 }
 
 void map_value_comp() {
-	ft::map<char, int> mymap;
-	// ft::map<char,int>::key_compare mycomp = mymap.key_comp();
-
-	mymap['a'] = 100;
-		mymap.put('a', 100);
+	ft::map<int, char> tree;
+	tree.put(10,'a');
+	tree.put(2, 'b');
+	tree.put(31,'c');
+	tree.put(14,'d');
+	tree.put(5, 'e');
+	tree.put(16,'f');
+	tree.put(71,'g');
+	tree.put(8, 'h');
+	tree.put(3, 'h');
+	tree.tree_print();
 
 	//std::cout << "mymap contains: " << mymap[0] << std::endl;
 }
 
-	
+void map_iterator_begin() {
+	ft::map<int, char> mymap;
+	//mymap[5] = 'a';
+	mymap.put(10,'a');
+
+	ft::map<int, char>::iterator it = mymap.begin();
+//	std::cout << "it: " << it->first << std::endl;
+}
 
 int main() {
 
@@ -490,6 +502,7 @@ int main() {
 	//PAIR
 		//pair();
 		//MAP
+			map_iterator_begin();
 			map_value_comp();
 	//TREE
 		//rb_tree();
