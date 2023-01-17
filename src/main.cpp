@@ -471,8 +471,8 @@ void map_value_comp() {
 
 void map_iterator_begin() {
 	ft::map<int, char> mymap;
-	//mymap[5] = 'a';
-	mymap.put(10,'a');
+	mymap[5] = 'a';
+//	mymap.insert(10,'a');
 
 //	ft::map<int, char>::iterator it = mymap.begin();
 //	std::cout << "it: " << it->first << std::endl;

@@ -24,10 +24,16 @@ namespace ft {
 		 /** MAP: */
 		/*-------*/
 
+	template <class T>
+	struct get_key_from_pair : std::unary_function<T, typename T::first_type>
+	{
+		typename T::first_type operator()(T pair) const { return pair.first; }
+	};
+
 // Class template
 template <class Key,	class T,	class Compare = std::less<Key>,
 					class Alloc = std::allocator<ft::pair<const Key, T> > >
-class map : public BST<Key, T, ft::pair<const Key, T>, Compare, Alloc> {
+class map {
 
 	public:
 
@@ -36,29 +42,29 @@ class map : public BST<Key, T, ft::pair<const Key, T>, Compare, Alloc> {
  /*----------------*/
 
 		// Template parameters
-		typedef Key																				key_type;
-		typedef T																					mapped_type;
-		typedef ft::pair<const Key, T>										value_type;
-		typedef Compare																		key_compare;
-		typedef Alloc																			allocator_type;
+		typedef Key						key_type;
+		typedef T						mapped_type;
+		typedef ft::pair<const Key, T>	value_type;
+		typedef Compare					key_compare;
+		typedef Alloc					allocator_type;
 
 		typedef typename Alloc::template rebind<value_type>::other alloc_pair;
-		typedef BST<key_type, mapped_type, value_type, Compare, Alloc> BST_type;
+		typedef BST<key_type, value_type, get_key_from_pair<value_type>, Compare, Alloc> BST_type;
 
 	// Tree structure
 		BST_type	_tree;
 
 	public:
-		typedef typename alloc_pair::reference						reference;
-		typedef typename alloc_pair::const_reference			const_value_type;
-		typedef typename alloc_pair::pointer							pointer;
-		typedef typename alloc_pair::const_pointer				const_pointer;
-		typedef typename BST_type::iterator								iterator;
-		typedef typename BST_type::const_iterator					const_iterator;
-		typedef typename BST_type::reverse_iterator				reverse_iterator;
+		typedef typename alloc_pair::reference				reference;
+		typedef typename alloc_pair::const_reference		const_value_type;
+		typedef typename alloc_pair::pointer				pointer;
+		typedef typename alloc_pair::const_pointer			const_pointer;
+		typedef typename BST_type::iterator					iterator;
+		typedef typename BST_type::const_iterator			const_iterator;
+		typedef typename BST_type::reverse_iterator			reverse_iterator;
 		typedef typename BST_type::const_reverse_iterator	const_reverse_iterator;
-		typedef typename BST_type::difference_type				difference_type;
-		typedef size_t																		size_type;
+		typedef typename BST_type::difference_type			difference_type;
+		typedef size_t										size_type;
 
 
 public:
@@ -106,12 +112,17 @@ public:
 
 		virtual ~map() {}
 
-		map& operator= (const map& x) { return *this;	}
+		map& operator= (const map& x){
+
+			_tree = x->_tree;
+
+			return *this;
+		}
 
 		// Iterators
 		iterator begin();
 		const_iterator begin() const;
-		iterator end();
+		iterator end() { return _tree.get_end() ; }
 		const_iterator end() const;
 		reverse_iterator rbegin();
 		reverse_iterator rend();
@@ -123,15 +134,13 @@ public:
 
 		// Element access
 		mapped_type& operator[] (const key_type& k) {
-			return (*((this->insert(ft::make_pair(k, mapped_type()))).first));
+			return ((this->insert(ft::make_pair(k, mapped_type()))).first);
 		}
 
 		mapped_type& at (const key_type& k);
 		const mapped_type& at (const key_type& k) const;
 
 		// Modifiers
-
-
 		/** @insert: Attemps to insert a ft::pair into the map
 		 * pair<iterator, bool>:
 		 * bool represents the result of insertion
@@ -139,12 +148,11 @@ public:
 		 */
 
 		pair<iterator,bool> insert (const value_type& val) {
-			key_type key = get_key(val);
-			iterator it = search(key);
+			iterator it = _tree.search(val.first);
 
-			if (it != NULL) return ft::make_pair(it, false);
+			if (it != end()) return ft::make_pair(it, false);
 
-			it = iterator(put(key, val->second));
+			it = iterator(_tree.put(val.first, val.second));
 
 			return ft::make_pair(it, true);			
 		};

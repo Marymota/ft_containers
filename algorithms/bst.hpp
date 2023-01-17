@@ -11,9 +11,9 @@
 
 namespace ft {
 
-	template <	class Key,	class T, class NodeData, class Compare = std::less<Key>,
+	template <	class Key,	class T, class get_key, class Compare = std::less<Key>,
 							class Alloc = std::allocator<ft::pair<const Key, T> > >
-	class BST : public BSTNode<T> {
+	class BST  {
 
 		/** @rebind:	Defines an allocator for a new type different
 		 * 						from the one defined in the container.
@@ -22,40 +22,51 @@ namespace ft {
 		 */
 
 	public:
-		typedef Key																			key_type;
-		typedef T																				mapped_type;
-		typedef ft::pair<const Key, T>									value_type;
-		typedef Compare																	key_compare;
-		typedef BSTNode<value_type>											node_type;
-		typedef BSTNode<value_type>*										Node;
-		typedef ft::BST_iterator<node_type>							iterator;
-		typedef ft::BST_iterator<const node_type> 			const_iterator;
-		typedef ft::reverse_iterator<node_type>					reverse_iterator;
+		typedef Key										key_type;
+		typedef T										mapped_type;
+		typedef Compare									key_compare;
+		typedef BSTNode<mapped_type>					node_type;
+		typedef BSTNode<mapped_type>*					Node;
+		typedef ft::BST_iterator<node_type>				iterator;
+		typedef ft::BST_iterator<const node_type> 		const_iterator;
+		typedef ft::reverse_iterator<node_type>			reverse_iterator;
 		typedef ft::reverse_iterator<const node_type> 	const_reverse_iterator;
-		typedef ptrdiff_t																difference_type;
-		typedef size_t																	size_type;
-		typedef	Alloc																		allocator_type;
+		typedef ptrdiff_t								difference_type;
+		typedef size_t									size_type;
+		typedef	Alloc									allocator_type;
 
-		typedef typename Alloc::template rebind<BSTNode<T> >::other	Alloc_Node;
+		typedef typename Alloc::template rebind<node_type>::other	Alloc_Node;
+		//typedef typename Alloc::template rebind<value_type >::other	A;
 
-	private:
-		Node				_root;
-		Compare 		_comp;
+	protected:
+		node_type	_end;
+		Node		_root;
+		Compare 	_comp;
 		Alloc_Node	_alloc;
-		size_type		_size;
+		//A 			_a;
+		size_type	_size;
 
 	public:
 
 		BST(const key_compare& comp = key_compare(),
 				const allocator_type& alloc = allocator_type()) :
-				_root(NULL), _comp(comp), _alloc(alloc), _size(0)  {}
+				_end(), _root(NULL), _comp(comp), _alloc(alloc), _size(0)  {
+					_end._right = _root;
+				}
 
-		BST(key_type key, mapped_type data, const allocator_type& alloc = allocator_type()) :  _root(NULL), _alloc(alloc), _size(1) {
+		BST(key_type key, mapped_type data, const allocator_type& alloc = allocator_type()) : _end(), _root(NULL), _alloc(alloc), _size(1) {
 			_root = _alloc.allocate(1);
 			_root->_key = key;
 			_root->_data = data;
 			_root->_left = NULL;
 			_root->_right = NULL;
+			_root->_parent = &_end;
+			_end._key = 0;
+			_end._data = 0;
+			_end._left = NULL;
+			_end._right = _root;
+			_end._parent = NULL;
+			
 		}
 
 		/** @bug: Need to use std::allocator to destroy elements
@@ -63,27 +74,27 @@ namespace ft {
 		~BST() {
 			deleteTree();
 		}
-		
-		key_type get_key( value_type& val) {
-			return val.first;
-		}
 
-		mapped_type get_val( value_type& val) {
-			return val.second;
-		}
+		// mapped_type get_val( value_type& val) {
+		// 	return val.second;
+		// }
 
 		void deleteTree() {
 			deleteTree(_root);
 		}
 
-		bool search(Node root, key_type key) {
+		iterator search(key_type key) {
+			return search(_root, key);
+		}
+
+		iterator search(Node root, key_type key) {
 			if (root == NULL)
-				return false;
-			else if (key < root->_key)
+				return iterator(&_end);
+			else if (key < get_key(root->_data))
 				return search(root->_left, key);
-			else if (key > root->_key)
+			else if (key > get_key(root->_data))
 				return search(root->_right, key);
-			return true;
+			return iterator(&_end);
 		}	// end search()
 
 		mapped_type get(Key key) {
@@ -99,14 +110,15 @@ namespace ft {
 			return 0;
 		} // end get()
 
-		void put(key_type key, mapped_type data) {
+		iterator put(key_type key, mapped_type data) {
 			++_size;
-			put(_root, key, data);
+			return iterator(put(_root, key, data));
 		}
 
-		Node	put(Node& root, key_type key, mapped_type data) {
+		Node	put(Node root, key_type key, mapped_type data) {
 			if (root == NULL) {
-				root = new node_type();
+				root = _alloc.allocate(1);
+				_alloc.construct(root, make_pair(key,data));
 				_size++;
 				return root;
 			}
@@ -168,6 +180,8 @@ namespace ft {
 	void deleteNode(key_type key) { _root = deleteNode(_root, key); --_size; }	
 	void deleteMin() { deleteMin(_root); }
 	void deleteMax() { deleteMax(_root); }
+
+	iterator get_end() { return  iterator(&_end); }
 
 private:
 
