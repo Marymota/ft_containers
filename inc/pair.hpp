@@ -9,6 +9,7 @@
 
 namespace ft {
 
+/** Way to store two heterogeneus objects as a single unit. */
 template <class T1, class T2> 
 struct pair {
 
@@ -18,24 +19,27 @@ struct pair {
 		typedef T2	second_type;	//	type of the second template parameter
 
 		// Member objects
-		T1 first;	// first value in pair
-		T2 second;	// second value in pair
+		first_type	first;	// first value in pair
+		second_type second;	// second value in pair
 
 		// default constructor (constructs a pair object)
-		pair() : first(), second() {};
+		pair() : first(first_type()), second(second_type()) {}
+
+		// initialization
+		pair( const first_type& x, const second_type& y) : first(x), second(y) {}
 
 		// copy
 		template<class U, class V>
-		pair (const pair<U,V>& pr) : first(pr.first), second(pr.second) {};
+		pair (const pair<U,V>& pr) : first(pr.first), second(pr.second) {}
 
-		// initialization
-		pair (const first_type& a, const second_type& b) : first(a), second(b) {}
+
 
 		pair& operator= (const pair& pr) 
 		{ 
 			if (*this == pr) return *this;
-			this->first = pr.first;
-			this->second = pr.second;
+			first = pr.first;
+			second = pr.second;
+
 			return *this;
 		}
 };
@@ -84,10 +88,9 @@ struct pair {
 		{ return !(lhs < rhs);  }
 
 
-// need to add relational operators 
-
+// Creates a pair object, deducing the target type from the types of arguments
 template <class T1, class T2>
-ft::pair<T1,T2> make_pair (T1 x, T2 y) { return ( ft::pair<T1,T2>(x,y) ); }
+ft::pair<T1,T2> make_pair (T1 x, T2 y) { return ft::pair<T1,T2>(x,y); }
 
 };
 

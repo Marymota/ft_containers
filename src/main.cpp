@@ -454,7 +454,7 @@ void bst_tree() {
 }
 
 void map_value_comp() {
-	ft::map<int, char> tree;
+//	ft::map<int, char> tree;
 //	tree.put(10,'a');
 //	tree.put(2, 'b');
 //	tree.put(31,'c');
@@ -469,9 +469,35 @@ void map_value_comp() {
 	//std::cout << "mymap contains: " << mymap[0] << std::endl;
 }
 
+void map_pair() {
+	ft::pair <std::string, int> planet, homeplanet;
+
+	planet = ft::make_pair("Earth", 6371);
+
+	homeplanet = planet;
+
+	std::cout << "Home planet: " << homeplanet.first << '\n';
+	std::cout << "Planet: " << planet.second << '\n';
+}
+
+void map_assing_operator() {
+	ft::map<char, int> first;
+//	ft::map<char, int> second;
+
+	first['x']=8;
+//	first['y']=16;
+//	first['z']=32;
+//
+//	second = first;								// second now contains 3 ints
+//	first = ft::map<char, int>();	// and first is now empty
+//
+//	std::cout << "Size of first: " << first.size() << '\n';
+//	std::cout << "Size of second: " << second.size() << '\n';
+}
+
 void map_iterator_begin() {
 	ft::map<int, char> mymap;
-	mymap[5] = 'a';
+//	mymap[5] = 'a';
 //	mymap.insert(10,'a');
 
 //	ft::map<int, char>::iterator it = mymap.begin();
@@ -502,7 +528,9 @@ int main() {
 	//PAIR
 		//pair();
 		//MAP
-			map_iterator_begin();
+			map_pair(); 							// pair /make_pair working
+			map_assing_operator();
+		//	map_iterator_begin();
 		//	map_value_comp();
 	//TREE
 		//rb_tree();

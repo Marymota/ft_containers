@@ -20,8 +20,10 @@ namespace ft {
 			typedef ptrdiff_t													difference_type;
 
 			typedef BST_iterator<Tp>									it;
-			typedef typename BSTNode<Tp>::node_type		node_type;
-			typedef node_type*												Node;
+			typedef typename BSTNode<Tp>::Node				Node;
+			typedef BSTNode<Tp>*											link_type;
+
+			Node _node;
 
 			BST_iterator<Tp>() : _node() {}
 			explicit BST_iterator(Node x) : _node(x) {}
@@ -34,8 +36,6 @@ namespace ft {
 				return (*this);
 			}
 
-		private:
-			Node _node;
 
 		public:
 			bool operator!=(const BST_iterator& x) const 	{ return (_node != 	x._node);}

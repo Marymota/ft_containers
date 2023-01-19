@@ -11,8 +11,12 @@
 
 namespace ft {
 
-	template <	class Key,	class T, class get_key, class Compare = std::less<Key>,
-							class Alloc = std::allocator<ft::pair<const Key, T> > >
+	template <class T>
+	struct get_key_from_pair : std::unary_function<T, typename T::first_type>
+	{		typename T::first_type operator()(T pair) const { return pair.first; } };
+
+	template <	class Key, class Tp, class Compare = std::less<Key>,
+							class Alloc = std::allocator<BSTNode<Tp> > > 
 	class BST  {
 
 		/** @rebind:	Defines an allocator for a new type different
@@ -22,51 +26,32 @@ namespace ft {
 		 */
 
 	public:
-		typedef Key										key_type;
-		typedef T										mapped_type;
-		typedef Compare									key_compare;
-		typedef BSTNode<mapped_type>					node_type;
-		typedef BSTNode<mapped_type>*					Node;
-		typedef ft::BST_iterator<node_type>				iterator;
-		typedef ft::BST_iterator<const node_type> 		const_iterator;
-		typedef ft::reverse_iterator<node_type>			reverse_iterator;
-		typedef ft::reverse_iterator<const node_type> 	const_reverse_iterator;
-		typedef ptrdiff_t								difference_type;
-		typedef size_t									size_type;
-		typedef	Alloc									allocator_type;
+		typedef Key															key_type;
+		typedef Tp															value_type;
+		typedef Compare													key_compare;
+		typedef ft::BST_iterator<Tp>						iterator;
+		typedef ft::BST_iterator<const Tp> 			const_iterator;
+		typedef ft::reverse_iterator<Tp>				reverse_iterator;
+		typedef ft::reverse_iterator<const Tp> 	const_reverse_iterator;
+		typedef ptrdiff_t												difference_type;
+		typedef size_t													size_type;
+		typedef	Alloc														allocator_type;
+		typedef BSTNode<value_type>							node_type;
+		typedef BSTNode<value_type>*						Node;
 
-		typedef typename Alloc::template rebind<node_type>::other	Alloc_Node;
-		//typedef typename Alloc::template rebind<value_type >::other	A;
-
-	protected:
-		node_type	_end;
-		Node		_root;
-		Compare 	_comp;
-		Alloc_Node	_alloc;
-		//A 			_a;
-		size_type	_size;
+		Node						_end;
+		Node						_root;
+		Compare 				_comp;
+		allocator_type	_alloc;
+		size_type				_size;
 
 	public:
 
-		BST(const key_compare& comp = key_compare(),
-				const allocator_type& alloc = allocator_type()) :
-				_end(), _root(NULL), _comp(comp), _alloc(alloc), _size(0)  {
-					_end._right = _root;
-				}
-
-		BST(key_type key, mapped_type data, const allocator_type& alloc = allocator_type()) : _end(), _root(NULL), _alloc(alloc), _size(1) {
-			_root = _alloc.allocate(1);
-			_root->_key = key;
-			_root->_data = data;
-			_root->_left = NULL;
-			_root->_right = NULL;
-			_root->_parent = &_end;
-			_end._key = 0;
-			_end._data = 0;
-			_end._left = NULL;
-			_end._right = _root;
-			_end._parent = NULL;
-			
+		explicit BST(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) :
+		_end(NULL), _root(NULL), _comp(comp), _alloc(alloc), _size(0) {
+			_end = _alloc.allocate(1);
+			_alloc.construct(_end, node_type(value_type()));
+			_root = _end;
 		}
 
 		/** @bug: Need to use std::allocator to destroy elements
@@ -74,10 +59,6 @@ namespace ft {
 		~BST() {
 			deleteTree();
 		}
-
-		// mapped_type get_val( value_type& val) {
-		// 	return val.second;
-		// }
 
 		void deleteTree() {
 			deleteTree(_root);
@@ -89,15 +70,15 @@ namespace ft {
 
 		iterator search(Node root, key_type key) {
 			if (root == NULL)
-				return iterator(&_end);
-			else if (key < get_key(root->_data))
+				return iterator(_end);
+			else if (key < get_key_from_pair<Tp>(root->_data))
 				return search(root->_left, key);
-			else if (key > get_key(root->_data))
+			else if (key > get_key_from_pair<Tp>(root->_data))
 				return search(root->_right, key);
 			return iterator(&_end);
 		}	// end search()
 
-		mapped_type get(Key key) {
+		value_type get(Key key) {
 			Node x = _root;
 			while(x != NULL) {
 				if (key < x->_key)
@@ -110,27 +91,45 @@ namespace ft {
 			return 0;
 		} // end get()
 
-		iterator put(key_type key, mapped_type data) {
-			++_size;
-			return iterator(put(_root, key, data));
+			key_type get_key(value_type data) {
+			Node x = _root;
+			while(x != NULL) {
+				if (data < x->_data)
+					x = x->_left;
+				else if (data > x->_data)
+					x = x->_right;
+				else
+					return *this->get_key(x->_data);
+			}
+			return 0;
+		} // end get()
+
+		pair<iterator,bool> insert (value_type& data) {
+			iterator it = search(get_key_from_pair<Tp>(data));
+			if (it != _end)
+				return ft::make_pair(it, false);
+			Node node = _alloc.allocate(1);
+			_alloc.construct(node, node_type(data));
+			if (node->_parent == NULL)
+			{
+				_root = node;
+				return _root;
+			}
+			it = put(node, data);
+			_size++;
+			return ft::make_pair(it, true);
 		}
 
-		Node	put(Node root, key_type key, mapped_type data) {
-			if (root == NULL) {
-				root = _alloc.allocate(1);
-				_alloc.construct(root, make_pair(key,data));
-				_size++;
-				return root;
+		pair<iterator,bool>	put(Node node, value_type data) {
+			while (node != NULL) {
+				if (_comp(get_key_from_pair<Tp>(node->_left), get_key_from_pair<Tp>(data)))
+					return put(node->_left, data);
+				else
+					return put(node->_right, data);
 			}
-			if (key == get_key(root->_data))
-				root->_data = make_pair(key, data);
-			else if (key < get_key(root->_data))
-				put(root->_left, key, data);
-			else
-				put(root->_right, key, data);
-			root->_count = 1 + count(root->_left) + count(root->_right);	
-			return root;
-	} // end insert()
+			return iterator(_end);
+		}
+
 
 
 	/**	@floor: Largest element <= than the given key
