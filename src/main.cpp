@@ -484,7 +484,7 @@ void map_assing_operator() {
 	ft::map<char, int> first;
 //	ft::map<char, int> second;
 
-	first['x']=8;
+	first['x'] = 8;
 //	first['y']=16;
 //	first['z']=32;
 //
@@ -529,7 +529,7 @@ int main() {
 		//pair();
 		//MAP
 			map_pair(); 							// pair /make_pair working
-			map_assing_operator();
+		//	map_assing_operator();
 		//	map_iterator_begin();
 		//	map_value_comp();
 	//TREE

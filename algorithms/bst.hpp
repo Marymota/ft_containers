@@ -15,8 +15,8 @@ namespace ft {
 	struct get_key_from_pair : std::unary_function<T, typename T::first_type>
 	{		typename T::first_type operator()(T pair) const { return pair.first; } };
 
-	template <	class Key, class Tp, class Compare = std::less<Key>,
-							class Alloc = std::allocator<BSTNode<Tp> > > 
+	template <class Key, class Tp, class Compare = std::less<Key>,
+						class Alloc = std::allocator<Tp> > 
 	class BST  {
 
 		/** @rebind:	Defines an allocator for a new type different
@@ -26,6 +26,7 @@ namespace ft {
 		 */
 
 	public:
+		typedef typename Alloc::template rebind<BSTNode<Tp> >::other Alloc_Node;
 		typedef Key															key_type;
 		typedef Tp															value_type;
 		typedef Compare													key_compare;
@@ -42,12 +43,12 @@ namespace ft {
 		Node						_end;
 		Node						_root;
 		Compare 				_comp;
-		allocator_type	_alloc;
+		Alloc_Node			_alloc;
 		size_type				_size;
 
 	public:
 
-		explicit BST(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) :
+		explicit BST(const key_compare& comp, const allocator_type& alloc = allocator_type()) :
 		_end(NULL), _root(NULL), _comp(comp), _alloc(alloc), _size(0) {
 			_end = _alloc.allocate(1);
 			_alloc.construct(_end, node_type(value_type()));
@@ -64,17 +65,28 @@ namespace ft {
 			deleteTree(_root);
 		}
 
-		iterator search(key_type key) {
-			return search(_root, key);
+		// Iterators
+		iterator begin() { return iterator( _root->minimum()); }
+		const_iterator begin() const { return begin(); }
+		iterator end() { if (empty()) return begin(); return iterator(_end); }
+		const_iterator end() const { if (empty()) return begin(); return iterator(_end); }
+		reverse_iterator rbegin() { return reverse_iterator(begin()); }
+		reverse_iterator rend() { return reverse_iterator(end()); }
+		bool empty() const{ if (size()) { return true; } return false; }
+		size_type size() const { return _size; }
+		size_type max_size() const ;
+
+		iterator find(const key_type& key) {
+			return find(_root, key);
 		}
 
-		iterator search(Node root, key_type key) {
+		iterator find(Node root, key_type key) {
 			if (root == NULL)
 				return iterator(_end);
 			else if (key < get_key_from_pair<Tp>(root->_data))
-				return search(root->_left, key);
+				return find(root->_left, key);
 			else if (key > get_key_from_pair<Tp>(root->_data))
-				return search(root->_right, key);
+				return find(root->_right, key);
 			return iterator(&_end);
 		}	// end search()
 
@@ -99,30 +111,29 @@ namespace ft {
 				else if (data > x->_data)
 					x = x->_right;
 				else
-					return *this->get_key(x->_data);
+					return this->get_key(x->_data);
 			}
 			return 0;
 		} // end get()
-
-		pair<iterator,bool> insert (value_type& data) {
-			iterator it = search(get_key_from_pair<Tp>(data));
-			if (it != _end)
-				return ft::make_pair(it, false);
-			Node node = _alloc.allocate(1);
-			_alloc.construct(node, node_type(data));
-			if (node->_parent == NULL)
-			{
-				_root = node;
-				return _root;
+		
+		ft::pair<iterator,bool> insert (const value_type data) {
+			if(empty())
+				return (ft::make_pair(data, true));
+			Node it = _root;
+			while(it) {
+				if(_comp(get_key(data), get_key(it->_data))) {
+					if(it->_left && it->_left != get_key(*this))
+						it = it->_left;
+					else
+						return ft::make_pair(data, true);
+				}
 			}
-			it = put(node, data);
-			_size++;
-			return ft::make_pair(it, true);
+			return ft::make_pair(data, false);
 		}
 
 		pair<iterator,bool>	put(Node node, value_type data) {
 			while (node != NULL) {
-				if (_comp(get_key_from_pair<Tp>(node->_left), get_key_from_pair<Tp>(data)))
+				if (_comp(node->_left, data))
 					return put(node->_left, data);
 				else
 					return put(node->_right, data);
@@ -274,8 +285,8 @@ private:
 		}
 	} // end tree_printHelper
 
-}; // end namespace
-}
+}; 
+}	// end namespace
 
 #endif
 
